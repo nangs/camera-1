@@ -1,0 +1,2 @@
+
+yo rn-toolbox:assets --icon ../icon.png
