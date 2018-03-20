@@ -21,7 +21,6 @@ let localStream;
 export default class RTC {
 
     constructor() {
-
         this.isFront = true;
     }
 
@@ -55,7 +54,7 @@ export default class RTC {
                 mandatory: {
                     minWidth: 240,
                     minHeight: 120,
-                    minFrameRate: 30,
+                    minFrameRate: 29,
                 },
                 facingMode: (isFront ? "user" : "environment"),
                 optional: (videoSourceId ? [{sourceId: videoSourceId}] : []),

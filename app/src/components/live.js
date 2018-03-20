@@ -67,6 +67,7 @@ export default class Live extends React.Component {
             title: "",
             live: false,
             localStreamUrl: null,
+            isFront: true
         };
 
         this._onStart = this._onStart.bind(this);
@@ -76,7 +77,7 @@ export default class Live extends React.Component {
 
     _requestUserMedia() {
 
-        rtc.getLocalStream(false, (stream) => {
+        rtc.getLocalStream(this.state.isFront, (stream) => {
             this.setState({
                 localStreamUrl: stream.toURL(),
             });
@@ -87,7 +88,7 @@ export default class Live extends React.Component {
 
         const {live} = this.state;
         if (!live) {
-            rtc.getLocalStream(false, (stream) => {
+            rtc.getLocalStream(this.state.isFront, (stream) => {
                 console.log("Got stream source", stream);
 
                 this.setState({
