@@ -67,7 +67,7 @@ export default class Live extends React.Component {
             title: "",
             live: false,
             localStreamUrl: null,
-            isFront: true
+            isFront: false
         };
 
         this._onStart = this._onStart.bind(this);

@@ -15,9 +15,7 @@ const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 const logError = (err) => {
     console.log("An error", err);
 };
-
 let localStream;
-
 export default class RTC {
 
     constructor() {
@@ -52,9 +50,9 @@ export default class RTC {
             audio: true,
             video: {
                 mandatory: {
-                    minWidth: 240,
-                    minHeight: 120,
-                    minFrameRate: 29,
+                    minWidth: 100,
+                    minHeight: 100,
+                    minFrameRate: 30,
                 },
                 facingMode: (isFront ? "user" : "environment"),
                 optional: (videoSourceId ? [{sourceId: videoSourceId}] : []),
