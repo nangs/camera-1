@@ -14,6 +14,19 @@ const pubSub = new ClientPubSub({
     url: config.webSocketUrl
 });
 
+pubSub.connect(() => {
+
+    console.log("you are connected");
+    pubSub.subscribe('tabvn', (msg) => {
+        console.log("Message receive from chanel tabvn: ", msg);
+    })
+    window.ps = pubSub;
+
+});
+
+
+
+
 export const store = createStore(
     reducers,
     applyMiddleware(thunk.withExtraArgument({service, pubSub}))

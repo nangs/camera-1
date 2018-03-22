@@ -103,6 +103,7 @@ export default class ClientPubSub {
 
         ws.onclose = (e) => {
 
+            this._event.removeAllListeners();
             console.log("Connection is close", e);
             this._connected = false;
             if (this._close_callback) {
@@ -116,6 +117,7 @@ export default class ClientPubSub {
 
         ws.onerror = (e) => {
             console.log("Connection is error", e);
+            this._event.removeAllListeners();
             this._connected = false;
             if (this._error_callback) {
                 this._error_callback(e);

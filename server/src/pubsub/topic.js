@@ -72,24 +72,24 @@ export class Topic {
      */
     publish(message, clientId = null) {
         this._queue.push(message);
+
         let clients = this._subscribers;
 
-        if (clientId) {
-            clientId = this._subscribers.filter((client) => client.id !== client);
-        }
-        clients.forEach((client, k) => {
-            console.log("Sending message to subscriber", k, message);
-            if (clientId) {
 
-            } else {
-                client.send({
-                    action: 'topic_message',
-                    payload: {
-                        name: this.id,
-                        message: message
-                    }
-                });
-            }
+        if (clientId) {
+            clients = this._subscribers.filter((client) => client.id !== clientId);
+        }
+        
+
+        clients.forEach((client, k) => {
+            console.log("Sending message to subscriber", k, message, this.id);
+            client.send({
+                action: 'topic_message',
+                payload: {
+                    name: this.id,
+                    message: message
+                }
+            });
 
         });
     }
