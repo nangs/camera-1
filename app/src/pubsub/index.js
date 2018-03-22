@@ -199,6 +199,23 @@ export default class ClientPubSub {
     }
 
     /**
+     *  Sending a message to everyone else except me
+     * @param topic
+     * @param message
+     */
+    broadcast(topic, message){
+
+        this.send({
+            id: uuid(),
+            action: 'topic_broadcast',
+            payload: {
+                name: topic,
+                message: message
+            }
+        })
+    }
+
+    /**
      * Subscribe to topic
      * @param topic
      * @param cb
@@ -216,6 +233,7 @@ export default class ClientPubSub {
 
         this._event.addListener(`__topic__${topic}__message`, cb);
     }
+
 
     /**
      * Unsubscribe topic

@@ -1,6 +1,7 @@
 import {Map} from 'immutable'
 import {uuid} from "../lib/objectid";
 import _ from 'lodash'
+
 export default class TopicManager {
     constructor() {
         this._topics = new Map();
@@ -67,18 +68,29 @@ export class Topic {
     /**
      * Publish message
      * @param message
+     * @param clientId
      */
-    publish(message) {
+    publish(message, clientId = null) {
         this._queue.push(message);
-        this._subscribers.forEach((client, k) => {
+        let clients = this._subscribers;
+
+        if (clientId) {
+            clientId = this._subscribers.filter((client) => client.id !== client);
+        }
+        clients.forEach((client, k) => {
             console.log("Sending message to subscriber", k, message);
-            client.send({
-                action: 'topic_message',
-                payload: {
-                    name: this.id,
-                    message: message
-                }
-            });
+            if (clientId) {
+
+            } else {
+                client.send({
+                    action: 'topic_message',
+                    payload: {
+                        name: this.id,
+                        message: message
+                    }
+                });
+            }
+
         });
     }
 }

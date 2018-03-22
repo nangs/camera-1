@@ -30,6 +30,10 @@ export default class AppStore {
             this.pubsub.publish('tabvn', {hi: "toan", date: new Date()}, () => {
                 console.log("Message published to the server");
             });
+            
+            this.pubsub.broadcast('tabvn', {name: "Toan Ngyen DInh"}, () => {
+                console.log("Board cast setnt")
+            });
 
 
         })
