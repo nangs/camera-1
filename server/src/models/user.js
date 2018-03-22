@@ -188,6 +188,44 @@ export default class User extends Model {
 
     }
 
+
+    /**
+     *
+     * Override query
+     */
+    query() {
+
+        const parentQuery = super.query();
+
+        const query = {
+            me: {
+                type: this.schema(),
+                args: {},
+                resolve: (value, args, request) => {
+
+                    const userId = _.get(request, 'token.userId');
+
+                    console.log(userId);
+
+                    return new Promise((resolve, reject) => {
+                        this.get(userId).then((user) => {
+                            return resolve(user);
+                        }).catch(() => {
+                            return reject("Access denied");
+                        });
+
+                    });
+
+
+                }
+            },
+
+        };
+
+        return Object.assign(parentQuery, query);
+    }
+
+
     /**
      * Mutation
      */
