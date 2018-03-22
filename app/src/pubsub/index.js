@@ -198,6 +198,11 @@ export default class ClientPubSub {
         })
     }
 
+    /**
+     * Subscribe to topic
+     * @param topic
+     * @param cb
+     */
     subscribe(topic, cb = () => {
     }) {
 
@@ -212,6 +217,11 @@ export default class ClientPubSub {
         this._event.addListener(`__topic__${topic}__message`, cb);
     }
 
+    /**
+     * Unsubscribe topic
+     * @param topic
+     * @param cb
+     */
     unsubscribe(topic, cb) {
         this._event.removeListener(`__topic__${topic}__message`, cb);
     }

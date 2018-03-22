@@ -26,7 +26,7 @@ export default class AppStore {
             this.pubsub.subscribe('tabvn', (message) => {
                 console.log("receive from subscriber", message);
             });
-
+            
             this.pubsub.publish('tabvn', {hi: "toan", date: new Date()}, () => {
                 console.log("Message published to the server");
             });
