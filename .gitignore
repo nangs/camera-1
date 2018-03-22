@@ -5,7 +5,8 @@
 /app/package-lock.json
 /app/yarn.lock
 /.idea
-.idea/
+.idea/*
+.idea/workspace.xml
 /.DS_Store
 .DS_Store
 /server/node_modules
