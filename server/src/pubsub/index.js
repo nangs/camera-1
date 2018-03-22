@@ -12,15 +12,13 @@ export default class PubSub {
 
         this.authenticate = this.authenticate.bind(this);
         this.logout = this.logout.bind(this);
+        this.publish = this.publish.bind(this);
 
 
         this.wss.on('connection', (ws) => {
 
 
-
             const clientId = this.autoId();
-
-            console.log("Client is connected", clientId);
 
             const client = new Client({
                 id: clientId,
@@ -91,18 +89,11 @@ export default class PubSub {
                 case 'topic_publish':
 
                     topicName = _.get(payload, 'name');
-                    topic = this.topics.set({
-                        id: topicName
-                    });
-
-                    console.log("Topic publish", topic,payload);
-
-                    topic.publish(_.get(payload, 'message'));
+                    this.publish(topicName, _.get(payload, 'message'));
 
                     break;
 
                 case 'topic_subscribe':
-
 
 
                     topicName = _.get(payload, 'name');
@@ -110,9 +101,8 @@ export default class PubSub {
                         id: topicName
                     });
 
-                    console.log("Topic subscriber", topic,payload);
-
                     client.subscribe(topic);
+
 
                     break;
 
@@ -161,6 +151,21 @@ export default class PubSub {
 
         });
 
+
+    }
+
+    /**
+     * Publish message to topic
+     * @param name
+     * @param message
+     */
+    publish(name, message) {
+
+        let topic = this.topics.set({
+            id: name
+        });
+
+        topic.publish(message);
 
     }
 
