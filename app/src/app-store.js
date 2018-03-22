@@ -22,7 +22,7 @@ export default class AppStore {
 
             }
             console.log("Success connected to the server");
-            
+
             this.pubsub.subscribe('tabvn', (message) => {
                 console.log("receive from subscriber", message);
             });

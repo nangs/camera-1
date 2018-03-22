@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import uuid from 'uuid/v4';
-import TopicManager from "./topic";
 import {EventEmitter} from 'fbemitter'
 
 
@@ -16,7 +15,6 @@ export default class ClientPubSub {
         this._close_callback = null;
         this._onMessageReceived = {};
 
-        this._topicManager = new TopicManager();
 
         this._event = new EventEmitter();
 
