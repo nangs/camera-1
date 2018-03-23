@@ -17,7 +17,7 @@ export default new GraphQLScalarType({
         if (value && !isValid) {
             throw new TypeError(`Value is not a valid Date: ${value}`);
         }
-        return isValid ? date.toString() : value;
+        return isValid ? date.toJSON() : value;
     },
 
     parseValue(value) {
@@ -35,14 +35,15 @@ export default new GraphQLScalarType({
             throw new GraphQLError(`Can only parse strings to dates but got a: ${ast.kind}`);
         }
 
-        const result = new Date(ast.value);
+        const value = ast.value;
 
-        if (isNaN(result.getTime())) {
-            throw new GraphQLError(`Value is not a valid Date: ${ast.value}`);
+        let date = moment(value);
+
+        const isValid = date.isValid();
+        if (value && !isValid) {
+            throw new TypeError(`Value is not a valid Date: ${value}`);
         }
-        if (ast.value !== result.toJSON()) {
-            throw new GraphQLError(`Value is not a valid Date format (YYYY-MM-DDTHH:MM:SS.SSSZ): ${ast.value}`);
-        }
-        return result;
+        return isValid ? date.toJSON() : value;
+
     },
 });

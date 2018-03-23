@@ -116,7 +116,7 @@ export default class Model {
             if (originalModel && typeof model[fieldName] === 'undefined') {
                 model[fieldName] = _.get(originalModel, fieldName);
             }
-            if (isNew && originalModel && typeof model[fieldName] !== 'undefined' && _.get(model, fieldName) !== _.get(originalModel, fieldName)) {
+            if (!isNew && originalModel && typeof model[fieldName] !== 'undefined' && _.get(model, fieldName) !== _.get(originalModel, fieldName)) {
                 changed = true;
             }
         });
@@ -764,8 +764,7 @@ export default class Model {
                         };
 
                         this.find(filter).then((results) => {
-                            const roles = _.get(request, 'user.roles', []);
-                            results = this.fieldAcl('read', roles, results);
+
                             return resolve(results);
                         }).catch((err) => {
 

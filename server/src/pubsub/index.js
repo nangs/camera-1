@@ -93,6 +93,13 @@ export default class PubSub {
 
                     break;
 
+                case 'topic_broadcast':
+
+                    topicName = _.get(payload, 'name');
+                    this.publish(topicName, _.get(payload, 'message'), clientId);
+
+                    break;
+
                 case 'topic_subscribe':
 
 
@@ -105,6 +112,8 @@ export default class PubSub {
 
 
                     break;
+
+
 
                 default:
                     break;
@@ -158,14 +167,15 @@ export default class PubSub {
      * Publish message to topic
      * @param name
      * @param message
+     * @param clientId
      */
-    publish(name, message) {
+    publish(name, message, clientId = null) {
 
         let topic = this.topics.set({
             id: name
         });
 
-        topic.publish(message);
+        topic.publish(message, clientId);
 
     }
 

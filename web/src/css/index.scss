@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
+@import "icon.css";
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-size: 14px;
+  font-family: 'Open Sans', sans-serif;
+  color: #141823;
+  line-height: 1.5em;
+  height: 100%;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.video-js .vjs-big-play-button {
+  top: 40%;
+  left: 40%;
+}
+.app-popover{
+  background: #FFF;
+  z-index: 1000;
+}
+.ReactModalPortal{
+  position: relative;
+  z-index: 1000;
+}
+.ReactModal__Content{
+  padding: 0;
+}

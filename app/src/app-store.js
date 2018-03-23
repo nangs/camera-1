@@ -31,6 +31,10 @@ export default class AppStore {
                 console.log("Message published to the server");
             });
 
+            this.pubsub.broadcast('tabvn', {name: "Toan Ngyen DInh"}, () => {
+                console.log("broadcast is sent")
+            });
+
 
         })
     }
