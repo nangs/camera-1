@@ -5,11 +5,11 @@ const productionConfig = {
     api: 'https://camera.homekitvietnam.com/api',
     webSocketUrl: 'wss://transcode.livex.tv',
 };
-
+const localIp = '127.0.0.1';
 const developmentConfig = {
-    url: 'http://127.0.0.1:3001',
-    api: 'http://127.0.0.1:3001/api',
-    webSocketUrl: 'ws://127.0.0.1:3001',
+    url: `http://${localIp}:3001`,
+    api: `http://${localIp}:3001/api`,
+    webSocketUrl: `ws://${localIp}:3001`,
 };
 
 export const config = production ? productionConfig : developmentConfig;
