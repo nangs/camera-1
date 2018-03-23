@@ -20,6 +20,9 @@ export default class ClientPubSub {
 
         this._event = new EventEmitter();
 
+        this.queue = [];
+        this.connected = this.connected.bind(this);
+        this.runQueue = this.runQueue.bind(this);
 
         this.connect = this.connect.bind(this);
         this.send = this.send.bind(this);
@@ -28,6 +31,24 @@ export default class ClientPubSub {
         this.onClose = this.onClose.bind(this);
 
 
+    }
+
+    connected() {
+        return this._connected;
+    }
+
+    runQueue() {
+        if (this.queue.length) {
+            this.queue.forEach((q, index) => {
+                this.executeQueue(q);
+                _.unset(this.queue, index);
+
+            });
+        }
+    }
+
+    executeQueue(q) {
+        this.send(q.message, q.cb);
     }
 
     id() {
@@ -55,6 +76,7 @@ export default class ClientPubSub {
 
 
             this._connected = true;
+            // ask Server who i'm i
             this.send({
                 id: uuid(),
                 action: 'me',
@@ -66,6 +88,8 @@ export default class ClientPubSub {
                     this._connect_callback(null, me);
                 }
             });
+
+            this.runQueue();
 
 
         };
@@ -157,13 +181,20 @@ export default class ClientPubSub {
      * @param cb
      */
     send(message, cb) {
-        if (this._ws && this._ws.readyState === 1) {
+        if (this.connected() && this._ws && this._ws.readyState === 1) {
             if (!message.id) {
                 message = _.setWith(message, 'id', uuid());
             }
             this._ws.send(JSON.stringify(message));
             this.onMessageSent(message.id, cb ? cb : null);
 
+        } else {
+
+            this.queue.push({
+                type: 'send',
+                message: message,
+                cb: cb ? cb : null
+            })
         }
     }
 
@@ -191,13 +222,6 @@ export default class ClientPubSub {
         return message;
     }
 
-    /**
-     * Check Connection is connected
-     * @returns {boolean}
-     */
-    isConnected() {
-        return this._connected;
-    }
 
     /**
      * Publish a message to topic
@@ -269,7 +293,14 @@ export default class ClientPubSub {
      * @param topic
      * @param cb
      */
-    unsubscribe(topic, cb) {
-        this._event.removeListener(`__topic__${topic}__message`, cb);
+    unsubscribe(topic, cb = null) {
+
+        const name = `__topic__${topic}__message`;
+        if (cb) {
+            this._event.removeListener(name, cb);
+        } else {
+            this._event.removeAllListeners(name);
+        }
+
     }
 }

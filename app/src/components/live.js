@@ -3,6 +3,15 @@ import {StatusBar, StyleSheet} from 'react-native'
 import styled from 'styled-components'
 import RTC from "../rtc";
 import WebRTCView from "../rtc/rtc-view";
+import {Map} from 'immutable'
+
+import {
+    RTCPeerConnection,
+    RTCMediaStream,
+    RTCIceCandidate,
+    RTCSessionDescription,
+    MediaStreamTrack,
+} from 'react-native-webrtc';
 
 const LiveContainer = styled.View `
     flex: 1;
@@ -73,7 +82,7 @@ export default class Live extends React.Component {
             localStreamUrl: null,
             isFront: false,
             camera: null,
-            remoteList: null,
+            remoteList: new Map(),
 
         };
 
@@ -81,6 +90,7 @@ export default class Live extends React.Component {
         this._requestUserMedia = this._requestUserMedia.bind(this);
         this._onStop = this._onStop.bind(this);
         this.createPeerConnection = this.createPeerConnection.bind(this);
+        this.exchange = this.exchange.bind(this);
     }
 
     _requestUserMedia() {
@@ -111,6 +121,7 @@ export default class Live extends React.Component {
         const pc = new RTCPeerConnection(configuration);
         pcPeers[socketId] = pc;
 
+        const _this = this;
         pc.onicecandidate = function (event) {
             console.log('onicecandidate', event.candidate);
             if (event.candidate) {
@@ -162,10 +173,12 @@ export default class Live extends React.Component {
             //container.setState({info: 'One peer join!'});
             console.log("One peer joined!");
 
-            const remoteList = this.state.remoteList;
+            let remoteList = _this.state.remoteList;
 
-            remoteList[socketId] = event.stream.toURL();
-            this.setState({
+            //remoteList = _.setWith(remoteList, socketId, event.stream.toURL());
+            remoteList = remoteList.set(socketId, event.stream.toURL());
+
+            _this.setState({
                 remoteList: remoteList
             })
 
@@ -175,6 +188,7 @@ export default class Live extends React.Component {
             console.log('onremovestream', event.stream);
         };
 
+        //attach media stream
         pc.addStream(rtc.localStream());
 
         function createDataChannel() {
@@ -189,7 +203,7 @@ export default class Live extends React.Component {
 
             dataChannel.onmessage = function (event) {
                 console.log("dataChannel.onmessage:", event.data);
-               // container.receiveTextData({user: socketId, message: event.data});
+                // container.receiveTextData({user: socketId, message: event.data});
             };
 
             dataChannel.onopen = function () {
@@ -205,6 +219,41 @@ export default class Live extends React.Component {
         }
 
         return pc;
+    }
+
+    exchange(data, fromId) {
+        const {store} = this.props;
+        const {camera} = this.state;
+
+
+        const exchangeTopic = `camera_exchange_${camera.clientId}_${fromId}`;
+
+        let pc;
+        if (fromId in pcPeers) {
+            pc = pcPeers[fromId];
+        } else {
+            pc = this.createPeerConnection(fromId, false);
+        }
+
+        if (data.sdp) {
+            console.log('exchange sdp', data);
+            pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
+                if (pc.remoteDescription.type === "offer")
+                    pc.createAnswer(function (desc) {
+                        console.log('createAnswer', desc);
+                        pc.setLocalDescription(desc, function () {
+                            console.log('setLocalDescription', pc.localDescription);
+                            //socket.emit('exchange', {'to': fromId, 'sdp': pc.localDescription});
+
+                            store.broadcast(exchangeTopic, {sdp: pc.localDescription});
+
+                        }, logError);
+                    }, logError);
+            }, logError);
+        } else {
+            console.log('exchange candidate', data);
+            pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        }
     }
 
     _onStart() {
@@ -241,13 +290,16 @@ export default class Live extends React.Component {
                             console.log("Somone want to see your camera", params);
 
                             // let create new peer connection when receive request view camera
-                            this.createPeerConnection(params.from, true);
+                            const fromId = params.from;
+                            this.createPeerConnection(fromId, true);
 
                             // we got new client want to join to this camera
                             const cameraId = camera.clientId;
 
-                            store.subscribe(`camera_exchange_${cameraId}_${params.from}`, (data) => {
+
+                            store.subscribe(`camera_exchange_${cameraId}_${fromId}`, (data) => {
                                 console.log("got exchange data between you and partner", data);
+                                this.exchange(data, fromId);
                             });
 
 
@@ -292,6 +344,14 @@ export default class Live extends React.Component {
         return (
             <LiveContainer>
                 <StatusBar hidden={true}/>
+                {
+                    this.state.remoteList.valueSeq().map((stream, key) => {
+
+                        console.log("hello stream",stream);
+
+                        return <WebRTCView key={key} customStyle={styles.localStreamView} streamURL={stream}/>
+                    })
+                }
                 <WebRTCView customStyle={styles.localStreamView} streamURL={this.state.localStreamUrl}/>
                 {!this.state.live && <Input
                     placeholderTextColor={"#FFF"}

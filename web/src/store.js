@@ -5,8 +5,9 @@ import reducers from './redux/reducers'
 import {setCurrentUser, setToken} from "./redux/actions/app";
 import ClientPubSub from "./pubsub";
 import {config} from "./config";
-import {addModels, deleteModels, getModelFields} from "./redux/actions/model";
+import {addModels, CLEAR_MODEL, deleteModels, getModelFields} from "./redux/actions/model";
 import _ from 'lodash'
+import {SET_CLIENT_ID} from "./redux/reducers/app";
 
 const service = new Service();
 const pubSub = new ClientPubSub({
@@ -20,9 +21,47 @@ export const store = createStore(
     applyMiddleware(thunk.withExtraArgument({service, pubSub}))
 );
 
-pubSub.connect(() => {
+pubSub.onClose((err) => {
+    store.dispatch({
+        type: CLEAR_MODEL,
+        payload: 'camera'
+    });
+});
+pubSub.onError((err) => {
+    store.dispatch({
+        type: CLEAR_MODEL,
+        payload: 'camera'
+    });
+})
 
-    console.log("you are connected");
+pubSub.connect((err, id) => {
+
+    console.log("you are connected", id);
+
+    if (err) {
+        return;
+    }
+
+    store.dispatch({
+        type: SET_CLIENT_ID,
+        payload: id,
+    });
+    // list all camera
+
+    pubSub.send({
+        action: 'camera_list',
+        payload: null,
+    }, (list) => {
+
+        _.each(list, (camera) => {
+
+            pubSub.subscribe(`camera_stop_${camera.id}`, () => {
+                store.dispatch(deleteModels('camera', camera.id));
+            });
+        });
+
+        store.dispatch(addModels('camera', list));
+    });
 
 
     // Subscribe camera ready channel
