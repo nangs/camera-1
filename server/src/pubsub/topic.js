@@ -79,7 +79,7 @@ export class Topic {
         if (clientId) {
             clients = this._subscribers.filter((client) => client.id !== clientId);
         }
-        
+
 
         clients.forEach((client, k) => {
             console.log("Sending message to subscriber", k, message, this.id);

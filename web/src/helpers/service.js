@@ -39,7 +39,7 @@ export default class Service {
      * @returns {string}
      */
     tokenId() {
-        return _.get(this.token, '_id', null);
+        return _.get(this.token, 'id', null);
     }
 
     /**
@@ -73,7 +73,7 @@ export default class Service {
 
         let defaultOptions = {
             headers: {
-                'Authorization': _.get(this.token, '_id'),
+                'Authorization': _.get(this.token, 'id'),
             }
         };
         options = Object.assign(options, defaultOptions);

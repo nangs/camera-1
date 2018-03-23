@@ -2,6 +2,7 @@ import {uuid} from '../lib/objectid'
 import ClientManager, {Client} from "./client";
 import TopicManager from "./topic";
 import _ from 'lodash'
+import CameraManager from "./camera";
 
 export default class PubSub {
     constructor(ctx) {
@@ -9,6 +10,7 @@ export default class PubSub {
         this.models = ctx.models;
         this.clients = new ClientManager();
         this.topics = new TopicManager();
+        this.cameras = new CameraManager();
 
         this.authenticate = this.authenticate.bind(this);
         this.logout = this.logout.bind(this);
@@ -36,6 +38,13 @@ export default class PubSub {
 
             ws.on('close', () => {
                 this.clients.remove(client);
+                const camera = this.cameras.get(clientId);
+
+                if (camera) {
+                    this.publish(`camera_stop_${clientId}`, camera);
+                    this.cameras.remove(client.id);// remove if this camera is live
+                }
+
             });
 
 
@@ -51,24 +60,37 @@ export default class PubSub {
     _handleClientMessage(clientId, data) {
 
 
+        let needReply = true;
+
+
         const client = this.clients.get(clientId);
 
         if (typeof data === 'string') {
             const message = this.messageToJSON(data);
-            const messageId = _.get(message, 'id');
             const action = _.get(message, 'action');
             const payload = _.get(message, 'payload');
 
             console.log("Client message:", message);
-            // confirm to client we received.
-            client.send({
-                action: '__reply__',
-                payload: messageId,
-            });
+
 
             let topic;
             let topicName;
             switch (action) {
+
+
+                case 'me':
+
+                    needReply = false;
+
+                    client.send({
+                        replyId: _.get(message, 'id'),
+                        action: 'me',
+                        payload: clientId,
+                    });
+
+
+                    break;
+
 
                 case 'logout':
 
@@ -114,10 +136,61 @@ export default class PubSub {
                     break;
 
 
+                // camera
+                case 'camera_ready':
+
+                    const newCamera = this.cameras.set(_.get(payload, 'name'), client);
+                    needReply = false;
+                    client.send({
+                        replyId: _.get(message, 'id'),
+                        action: 'camera_ready',
+                        payload: newCamera,
+                    });
+
+
+                    break;
+
+                case 'camera_stop':
+
+                    this.cameras.remove(clientId);
+
+                    break;
+
+                case 'camera_list':
+
+                    let items = [];
+
+                    this.cameras.filter((camera) => camera).forEach((i) => {
+                        items.push(i);
+                    });
+
+                    console.log("Cameras!!!!", items);
+
+
+                    needReply = false; // don't need answer to client any more.
+                    client.send({
+                        replyId: _.get(message, 'id'),
+                        action: 'camera_list',
+                        payload: items,
+                    });
+
+
+                    break;
+
 
                 default:
                     break;
             }
+
+
+            // confirm to client we received.
+            if (needReply) {
+                client.send({
+                    action: '__reply__',
+                    replyId: _.get(message, 'id'),
+                });
+            }
+
 
         } else {
             console.log("Receive data message", data);
