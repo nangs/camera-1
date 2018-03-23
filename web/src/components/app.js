@@ -8,6 +8,7 @@ import Authenticate from './require-auth'
 import CreateUser from './user/create-user'
 import UpdateUser from './user/update-user'
 import Users from './user'
+import Cameras from './camera'
 
 const Wrapper = styled.div `
     height: 100vh;
@@ -24,6 +25,7 @@ class App extends Component {
                     <Route exact path={'/users'} component={Authenticate(Users)}/>
                     <Route exact path={'/users/create'} component={Authenticate(CreateUser)}/>
                     <Route exact path={'/users/:id/edit'} component={Authenticate(UpdateUser)}/>
+                    <Route exact path={'/'} component={Authenticate(Cameras)}/>
                 </Switch>
             </Router>
         </Wrapper>

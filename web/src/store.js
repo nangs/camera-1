@@ -5,8 +5,8 @@ import reducers from './redux/reducers'
 import {setCurrentUser, setToken} from "./redux/actions/app";
 import ClientPubSub from "./pubsub";
 import {config} from "./config";
-import {getModelFields} from "./redux/actions/model";
-
+import {addModels, deleteModels, getModelFields} from "./redux/actions/model";
+import _ from 'lodash'
 
 const service = new Service();
 const pubSub = new ClientPubSub({
@@ -14,23 +14,44 @@ const pubSub = new ClientPubSub({
     url: config.webSocketUrl
 });
 
-pubSub.connect(() => {
-
-    console.log("you are connected");
-    pubSub.subscribe('tabvn', (msg) => {
-        console.log("Message receive from chanel tabvn: ", msg);
-    })
-    window.ps = pubSub;
-
-});
-
-
-
 
 export const store = createStore(
     reducers,
     applyMiddleware(thunk.withExtraArgument({service, pubSub}))
 );
+
+pubSub.connect(() => {
+
+    console.log("you are connected");
+
+
+    // Subscribe camera ready channel
+    pubSub.subscribe('camera_ready', (payload) => {
+
+        const camera = {
+            id: _.get(payload, 'clientId'),
+            name: _.get(payload, 'name'),
+            userId: _.get(payload, 'userId'),
+            clientId: _.get(payload, 'clientId')
+        };
+
+        console.log('Receive camera:', payload);
+
+        store.dispatch(addModels('camera', camera));
+
+        // let subscribe when this camera disconnect we remove it from the store
+
+        pubSub.subscribe(`camera_stop_${camera.id}`, () => {
+            store.dispatch(deleteModels('camera', camera.id));
+        });
+
+
+    });
+
+
+    window.ps = pubSub;
+
+});
 
 
 let token = null;
@@ -48,7 +69,6 @@ catch (err) {
 }
 
 
-
 store.dispatch(setToken(token));
 store.dispatch(setCurrentUser(user));
 const userFields = getModelFields('user');
@@ -60,7 +80,7 @@ if (token) {
 
         console.log(err)
 
-       // store.dispatch(setCurrentUser(null));
+        // store.dispatch(setCurrentUser(null));
         //store.dispatch(setToken(null));
     });
 }

@@ -5,9 +5,8 @@ import moment from 'moment'
 
 const initState = {
     models: {
-        cdn: new OrderedMap(),
+        camera: new OrderedMap(),
         user: new OrderedMap(),
-        transcoding: new OrderedMap(),
         role: new OrderedMap(),
     },
     count: new Map(),

@@ -10,6 +10,7 @@ export default class ClientPubSub {
         this._ws = null;
         this._url = _.get(options, 'url');
         this._token = null;
+        this._id = null;
 
         this._connect_callback = null;
         this._error_callback = null;
@@ -28,6 +29,11 @@ export default class ClientPubSub {
 
 
     }
+
+    id() {
+        return this._id;
+    }
+
     setToken(token) {
         this._token = token;
     }
@@ -47,18 +53,21 @@ export default class ClientPubSub {
 
             console.log("Connected");
 
-            this._connected = true;
-            if (this._connect_callback) {
-                this._connect_callback(null, true);
-            }
 
+            this._connected = true;
             this.send({
-                id: "msgid",
-                action: 'no',
-                payload: "you"
-            }, () => {
-                console.log("Message has been sent");
-            })
+                id: uuid(),
+                action: 'me',
+                payload: "me"
+            }, (me) => {
+
+                this._id = me;
+                if (this._connect_callback) {
+                    this._connect_callback(null, me);
+                }
+            });
+
+
         };
         ws.onmessage = (response) => {
 
@@ -73,15 +82,16 @@ export default class ClientPubSub {
                 const action = _.get(message, 'action');
                 const payload = _.get(message, 'payload');
 
-                switch (action) {
-                    case '__reply__':
-                        const cb = _.get(this._onMessageReceived, payload);
-                        if (cb) {
-                            cb(true);
-                            _.unset(this._onMessageReceived, payload);
-                        }
-                        break;
+                const replyId = _.get(message, 'replyId');
+                if (replyId) {
+                    const cb = _.get(this._onMessageReceived, replyId);
+                    if (cb) {
+                        cb(payload);
+                        _.unset(this._onMessageReceived, replyId);
+                    }
+                }
 
+                switch (action) {
                     case 'topic_message':
 
                         this._event.emit(`__topic__${_.get(payload, 'name')}__message`, _.get(payload, 'message'));
@@ -152,7 +162,7 @@ export default class ClientPubSub {
                 message = _.setWith(message, 'id', uuid());
             }
             this._ws.send(JSON.stringify(message));
-            this.onMessageSent(message.id, cb);
+            this.onMessageSent(message.id, cb ? cb : null);
 
         }
     }
@@ -163,6 +173,7 @@ export default class ClientPubSub {
      * @param cb
      */
     onMessageSent(id, cb) {
+
         this._onMessageReceived = _.setWith(this._onMessageReceived, id, cb);
     }
 
