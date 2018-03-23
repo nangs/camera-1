@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import RTC from "../rtc";
 import WebRTCView from "../rtc/rtc-view";
 import {Map} from 'immutable'
+import _ from 'lodash'
 
 import {
     RTCPeerConnection,
@@ -291,16 +292,18 @@ export default class Live extends React.Component {
 
                             // let create new peer connection when receive request view camera
                             const fromId = params.from;
-                            this.createPeerConnection(fromId, true);
 
                             // we got new client want to join to this camera
                             const cameraId = camera.clientId;
-
-
                             store.subscribe(`camera_exchange_${cameraId}_${fromId}`, (data) => {
                                 console.log("got exchange data between you and partner", data);
                                 this.exchange(data, fromId);
                             });
+
+                            let pc = _.get(pcPeers, fromId);
+                            if (!pc) {
+                                this.createPeerConnection(fromId, true);
+                            }
 
 
                         });
@@ -331,6 +334,12 @@ export default class Live extends React.Component {
         if (camera) {
             store.publish(`camera_stop_${camera.clientId}`);
         }
+        if (pcPeers.length) {
+            pcPeers.forEach((pc, index) => {
+                pc.close();
+                delete pcPeers[index];
+            });
+        }
 
     }
 
@@ -344,14 +353,6 @@ export default class Live extends React.Component {
         return (
             <LiveContainer>
                 <StatusBar hidden={true}/>
-                {
-                    this.state.remoteList.valueSeq().map((stream, key) => {
-
-                        console.log("hello stream",stream);
-
-                        return <WebRTCView key={key} customStyle={styles.localStreamView} streamURL={stream}/>
-                    })
-                }
                 <WebRTCView customStyle={styles.localStreamView} streamURL={this.state.localStreamUrl}/>
                 {!this.state.live && <Input
                     placeholderTextColor={"#FFF"}

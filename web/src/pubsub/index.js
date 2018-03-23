@@ -73,8 +73,6 @@ export default class ClientPubSub {
 
         ws.onopen = () => {
 
-            console.log("Connected");
-
 
             this._connected = true;
             // ask Server who i'm i
@@ -101,7 +99,7 @@ export default class ClientPubSub {
 
                 message = this.toJSON(message);
 
-                console.log("Server Message", message);
+               // console.log("Server Message", message);
 
 
                 const action = _.get(message, 'action');

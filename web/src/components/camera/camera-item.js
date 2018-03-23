@@ -2,15 +2,14 @@ import React from 'react'
 import styled from 'styled-components'
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
-import RTC from "../../rtc";
+import _ from 'lodash'
 
 const Wrapper = styled.div `
     
 `
 
 const Video = styled.div `
-    width: 320px;
-    height: 240px;
+
     border: 1px solid rgba(0,0, 0, 0.1);
     cursor: pointer;
     &:hover{
@@ -18,6 +17,7 @@ const Video = styled.div `
     }
     video {
         max-width: 100%;
+        height: auto;
     }
    
 `
@@ -32,9 +32,7 @@ const logError = (err) => {
 let RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
 let RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
 const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
-const rtc = new RTC();
 let pcPeers = {};
-let localStream;
 
 class CameraItem extends React.Component {
 
@@ -43,7 +41,8 @@ class CameraItem extends React.Component {
 
         this.state = {
             streamUrl: null,
-            playing: false
+            playing: false,
+            remoteStream: null,
         };
 
         this._onCall = this._onCall.bind(this);
@@ -69,7 +68,7 @@ class CameraItem extends React.Component {
         const _this = this;
 
         pc.onicecandidate = function (event) {
-            console.log('onicecandidate', event);
+            //console.log('onicecandidate', event);
             if (event.candidate) {
                 //socket.emit('exchange', {'to': socketId, 'candidate': event.candidate});
 
@@ -79,9 +78,9 @@ class CameraItem extends React.Component {
 
         function createOffer() {
             pc.createOffer(function (desc) {
-                console.log('createOffer', desc);
+                //console.log('createOffer', desc);
                 pc.setLocalDescription(desc, function () {
-                    console.log('setLocalDescription', pc.localDescription);
+                    // console.log('setLocalDescription', pc.localDescription);
                     // socket.emit('exchange', {'to': socketId, 'sdp': pc.localDescription});
 
                     _this.props.broadcast(exchangeTopic, {sdp: pc.localDescription});
@@ -91,34 +90,36 @@ class CameraItem extends React.Component {
         }
 
         pc.onnegotiationneeded = function () {
-            console.log('onnegotiationneeded');
+            //console.log('onnegotiationneeded');
             if (isOffer) {
                 createOffer();
             }
         }
         pc.oniceconnectionstatechange = function (event) {
-            console.log('oniceconnectionstatechange', event);
+            //console.log('oniceconnectionstatechange', event);
             if (event.target.iceConnectionState === 'connected') {
                 createDataChannel();
             }
         };
         pc.onsignalingstatechange = function (event) {
-            console.log('onsignalingstatechange', event);
+            //console.log('onsignalingstatechange', event);
         };
         pc.onaddstream = function (event) {
-            console.log('onaddstream', event);
+            //console.log('onaddstream', event);
 
-            /*let element = document.createElement('video');
-            element.id = "remoteView" + socketId;
-            element.autoplay = 'autoplay';
-            element.src = URL.createObjectURL(event.stream);
-            remoteViewContainer.appendChild(element);*/
 
-            cameraRef.src = URL.createObjectURL(event.stream);
+            console.log("GOt Stream from Client!!!!!", event.stream);
+
+
+            const remoteStreamURL = URL.createObjectURL(event.stream);
+            cameraRef.src = remoteStreamURL;
+            _this.setState({
+                remoteStream: remoteStreamURL
+            })
         };
 
         // for this project we dont need add local stream because we are only watching camera. no need send the video
-        pc.addStream(localStream);
+        //pc.addStream(localStream);
 
 
         function createDataChannel() {
@@ -150,7 +151,8 @@ class CameraItem extends React.Component {
         const {camera, app} = this.props;
         const socketId = app.clientId;
 
-        console.log("Got exchange data ", data);
+        // console.log("Got exchange data ", data);
+
         const _this = this;
         const exchangeTopic = `camera_exchange_${camera.clientId}_${socketId}`;
         const fromId = camera.id;
@@ -166,9 +168,9 @@ class CameraItem extends React.Component {
             pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
                 if (pc.remoteDescription.type === "offer")
                     pc.createAnswer(function (desc) {
-                        console.log('createAnswer', desc);
+                        //console.log('createAnswer', desc);
                         pc.setLocalDescription(desc, function () {
-                            console.log('setLocalDescription', pc.localDescription);
+                            //console.log('setLocalDescription', pc.localDescription);
                             //socket.emit('exchange', {'to': fromId, 'sdp': pc.localDescription});
 
                             _this.props.broadcast(exchangeTopic, {sdp: pc.localDescription});
@@ -177,37 +179,49 @@ class CameraItem extends React.Component {
                     }, logError);
             }, logError);
         } else {
-            console.log('exchange candidate', data);
+            // console.log('exchange candidate', data);
             pc.addIceCandidate(new RTCIceCandidate(data.candidate));
         }
     }
 
 
-    _onCall(camera) {
+    _close(camera) {
 
-        if (!this.state.playing) {
-            rtc.getUserMedia((err, stream) => {
-
-                console.log("Stream", err, stream);
-
-                localStream = stream;
-
-                const streamURL = window.URL.createObjectURL(stream);
-
-
-                this.props.call(camera, (data) => {
-                    console.log("Got data exchange now !!!", data);
-                    this.exchange(data);
-                });
-
-                this.setState({
-                    playing: true,
-                    streamUrl: streamURL
-                });
-            });
-
+        const pc = _.get(pcPeers, camera.id);
+        console.log("CLOSE:", pcPeers, pc);
+        if (pc) {
+            pc.close();
+            _.unset(pcPeers, camera.id);
         }
 
+
+    }
+
+    _onCall(camera) {
+
+        if (this.state.playing) {
+            return;
+        }
+
+        this.setState({
+            playing: true
+        }, () => {
+
+            //this.createPeerConnection(camera.id, true);
+
+            this.props.call(camera, (data) => {
+                this.exchange(data);
+            });
+        })
+
+
+    }
+
+    componentWillUnmount() {
+
+        const {camera} = this.props;
+        console.log("camera disconnected", camera);
+        this._close(camera);
     }
 
 
@@ -218,7 +232,7 @@ class CameraItem extends React.Component {
                 <Video onClick={() => {
                     this._onCall(camera)
                 }}>
-                    <video autoPlay={true} ref={(ref) => this.cameraRef = ref} src={null}/>
+                    <video autoPlay={true} ref={(ref) => this.cameraRef = ref} src={this.remoteStream}/>
                 </Video>
                 <Title>{camera.name}</Title>
             </Wrapper>
@@ -262,7 +276,6 @@ const mapDispatchToProps = dispatch => bindActionCreators({
             pubSub.unsubscribe(exchangeTopic, null);
 
             pubSub.subscribe(exchangeTopic, (data) => {
-                console.log("Receive exchange from topic:", exchangeTopic, data);
                 cb(data);
             });
         }
