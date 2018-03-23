@@ -139,6 +139,8 @@ export default class User extends Model {
                         userId: userId
                     }).then((tokenModel) => {
 
+                        
+                        tokenModel = _.setWith(tokenModel, 'user', model);
                         return resolve(tokenModel);
                     }).catch(err => {
                         return reject(err);

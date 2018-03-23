@@ -5,7 +5,7 @@ import {bindActionCreators} from "redux";
 
 
 const Wrapper = styled.div `
-
+    cusror: pointer;
     
 `
 
@@ -55,7 +55,16 @@ const mapDispatchToProps = dispatch => bindActionCreators({
     call: (camera) => {
         return (dispatch, getState, {service, pubSub}) => {
 
+            const mySocketId = pubSub.id();
             pubSub.broadcast(`camera_join_${camera.id}`, {from: pubSub.id()});
+
+
+            const exchangeTopic = `camera_exchange_${camera.id}_${mySocketId}`;
+
+            pubSub.subscribe(exchangeTopic, (data) => {
+
+                console.log("Receive exchange from topic:", exchangeTopic, data);
+            });
         }
     },
 }, dispatch);

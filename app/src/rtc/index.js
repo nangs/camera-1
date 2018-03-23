@@ -21,6 +21,9 @@ export default class RTC {
     constructor() {
         this.isFront = true;
     }
+    localStream() {
+        return localStream;
+    }
 
     getLocalStream(isFront = false, cb) {
 
