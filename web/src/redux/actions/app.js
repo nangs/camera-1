@@ -135,9 +135,11 @@ export const login = (email, password) => {
 
                 const user = _.get(data, 'user');
                 const token = data;
+
                 dispatch(setCurrentUser(user));
                 dispatch(setToken(token));
 
+                console.log(user, token);
                 return resolve(data);
 
             }).catch((err) => {

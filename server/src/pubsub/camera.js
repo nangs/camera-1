@@ -19,6 +19,7 @@ export default class CameraManager {
             camera.name = name;
             camera.userId = client.userId;
             camera.clientId = client.id;
+            camera.id = client.id;
         }
         this.cameras = this.cameras.set(client.id, camera);
         return camera;
@@ -37,8 +38,10 @@ export default class CameraManager {
 export class Camera {
 
     constructor(name, client) {
+        this.id = client.id;
         this.name = name;
         this.clientId = client.id;
         this.userId = client.userId;
+
     }
 }

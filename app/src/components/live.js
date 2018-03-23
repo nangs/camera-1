@@ -3,6 +3,16 @@ import {StatusBar, StyleSheet} from 'react-native'
 import styled from 'styled-components'
 import RTC from "../rtc";
 import WebRTCView from "../rtc/rtc-view";
+import {Map} from 'immutable'
+import _ from 'lodash'
+
+import {
+    RTCPeerConnection,
+    RTCMediaStream,
+    RTCIceCandidate,
+    RTCSessionDescription,
+    MediaStreamTrack,
+} from 'react-native-webrtc';
 
 const LiveContainer = styled.View `
     flex: 1;
@@ -54,6 +64,10 @@ const Controls = styled.View`
     justify-content: center;
 `
 
+const logError = (err) => {
+    console.log("Log Error:", err)
+};
+
 const rtc = new RTC();
 let pcPeers = {};
 const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
@@ -69,12 +83,15 @@ export default class Live extends React.Component {
             localStreamUrl: null,
             isFront: false,
             camera: null,
+            remoteList: new Map(),
 
         };
 
         this._onStart = this._onStart.bind(this);
         this._requestUserMedia = this._requestUserMedia.bind(this);
         this._onStop = this._onStop.bind(this);
+        this.createPeerConnection = this.createPeerConnection.bind(this);
+        this.exchange = this.exchange.bind(this);
     }
 
     _requestUserMedia() {
@@ -86,15 +103,34 @@ export default class Live extends React.Component {
         });
     }
 
+    getStats() {
+        const pc = pcPeers[Object.keys(pcPeers)[0]];
+        if (pc.getRemoteStreams()[0] && pc.getRemoteStreams()[0].getAudioTracks()[0]) {
+            const track = pc.getRemoteStreams()[0].getAudioTracks()[0];
+            console.log('track', track);
+            pc.getStats(track, function (report) {
+                console.log('getStats report', report);
+            }, logError);
+        }
+    }
+
     createPeerConnection(socketId, isOffer) {
 
+        const {camera} = this.state;
+        const {store} = this.props;
+        const exchangeTopic = `camera_exchange_${camera.clientId}_${socketId}`;
         const pc = new RTCPeerConnection(configuration);
         pcPeers[socketId] = pc;
 
+        const _this = this;
         pc.onicecandidate = function (event) {
             console.log('onicecandidate', event.candidate);
             if (event.candidate) {
-                socket.emit('exchange', {'to': socketId, 'candidate': event.candidate});
+                // socket.emit('exchange', {'to': socketId, 'candidate': event.candidate});
+
+
+                store.broadcast(exchangeTopic, {'candidate': event.candidate});
+
             }
         };
 
@@ -103,7 +139,10 @@ export default class Live extends React.Component {
                 console.log('createOffer', desc);
                 pc.setLocalDescription(desc, function () {
                     console.log('setLocalDescription', pc.localDescription);
-                    socket.emit('exchange', {'to': socketId, 'sdp': pc.localDescription});
+                    //socket.emit('exchange', {'to': socketId, 'sdp': pc.localDescription});
+
+                    store.broadcast(exchangeTopic, {sdp: pc.localDescription});
+
                 }, logError);
             }, logError);
         }
@@ -119,7 +158,7 @@ export default class Live extends React.Component {
             console.log('oniceconnectionstatechange', event.target.iceConnectionState);
             if (event.target.iceConnectionState === 'completed') {
                 setTimeout(() => {
-                    getStats();
+                    this.getStats();
                 }, 1000);
             }
             if (event.target.iceConnectionState === 'connected') {
@@ -132,17 +171,26 @@ export default class Live extends React.Component {
 
         pc.onaddstream = function (event) {
             console.log('onaddstream', event.stream);
-            container.setState({info: 'One peer join!'});
+            //container.setState({info: 'One peer join!'});
+            console.log("One peer joined!");
 
-            const remoteList = container.state.remoteList;
-            remoteList[socketId] = event.stream.toURL();
-            container.setState({remoteList: remoteList});
+            let remoteList = _this.state.remoteList;
+
+            //remoteList = _.setWith(remoteList, socketId, event.stream.toURL());
+            remoteList = remoteList.set(socketId, event.stream.toURL());
+
+            _this.setState({
+                remoteList: remoteList
+            })
+
+            //container.setState({remoteList: remoteList});
         };
         pc.onremovestream = function (event) {
             console.log('onremovestream', event.stream);
         };
 
-        pc.addStream(localStream);
+        //attach media stream
+        pc.addStream(rtc.localStream());
 
         function createDataChannel() {
             if (pc.textDataChannel) {
@@ -156,12 +204,12 @@ export default class Live extends React.Component {
 
             dataChannel.onmessage = function (event) {
                 console.log("dataChannel.onmessage:", event.data);
-                container.receiveTextData({user: socketId, message: event.data});
+                // container.receiveTextData({user: socketId, message: event.data});
             };
 
             dataChannel.onopen = function () {
                 console.log('dataChannel.onopen');
-                container.setState({textRoomConnected: true});
+                //container.setState({textRoomConnected: true});
             };
 
             dataChannel.onclose = function () {
@@ -172,6 +220,41 @@ export default class Live extends React.Component {
         }
 
         return pc;
+    }
+
+    exchange(data, fromId) {
+        const {store} = this.props;
+        const {camera} = this.state;
+
+
+        const exchangeTopic = `camera_exchange_${camera.clientId}_${fromId}`;
+
+        let pc;
+        if (fromId in pcPeers) {
+            pc = pcPeers[fromId];
+        } else {
+            pc = this.createPeerConnection(fromId, false);
+        }
+
+        if (data.sdp) {
+            console.log('exchange sdp', data);
+            pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
+                if (pc.remoteDescription.type === "offer")
+                    pc.createAnswer(function (desc) {
+                        console.log('createAnswer', desc);
+                        pc.setLocalDescription(desc, function () {
+                            console.log('setLocalDescription', pc.localDescription);
+                            //socket.emit('exchange', {'to': fromId, 'sdp': pc.localDescription});
+
+                            store.broadcast(exchangeTopic, {sdp: pc.localDescription});
+
+                        }, logError);
+                    }, logError);
+            }, logError);
+        } else {
+            console.log('exchange candidate', data);
+            pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        }
     }
 
     _onStart() {
@@ -207,11 +290,20 @@ export default class Live extends React.Component {
 
                             console.log("Somone want to see your camera", params);
 
+                            // let create new peer connection when receive request view camera
+                            const fromId = params.from;
+
                             // we got new client want to join to this camera
                             const cameraId = camera.clientId;
-                            store.subscribe(`camera_exchange_data_${cameraId}_${params.from}`, (data) => {
+                            store.subscribe(`camera_exchange_${cameraId}_${fromId}`, (data) => {
                                 console.log("got exchange data between you and partner", data);
+                                this.exchange(data, fromId);
                             });
+
+                            let pc = _.get(pcPeers, fromId);
+                            if (!pc) {
+                                this.createPeerConnection(fromId, true);
+                            }
 
 
                         });
@@ -241,6 +333,12 @@ export default class Live extends React.Component {
         const camera = this.state.camera;
         if (camera) {
             store.publish(`camera_stop_${camera.clientId}`);
+        }
+        if (pcPeers.length) {
+            pcPeers.forEach((pc, index) => {
+                pc.close();
+                delete pcPeers[index];
+            });
         }
 
     }

@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import styled from 'styled-components'
 import {bindActionCreators} from 'redux'
 import {connect} from 'react-redux'
-import {getModels, requestDeleteModel, getManyModels, setModelCount} from "../../redux/actions/model";
+import {getModels, requestDeleteModel, getManyModels, setModelCount, addModels} from "../../redux/actions/model";
 import Sidebar from "../shared/sidebar";
 import {color, sidebar, Spinner} from "../theme";
 import _ from 'lodash'
@@ -58,6 +58,9 @@ class Cameras extends Component {
     componentDidMount() {
 
         this.props.setActiveMenu(COLLECTION);
+
+
+
     }
 
 
