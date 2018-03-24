@@ -152,7 +152,7 @@ class Sidebar extends Component {
 
         const firstName = _.get(currentUser, 'firstName', '');
         const lastName = _.get(currentUser, 'lastName', '');
-        const userId = _.get(currentUser, '_id');
+        const userId = _.get(currentUser, 'id');
         const userAvatar = _.get(currentUser, 'avatar',null);
         let avatarUrl = userAvatar ? `${config.url}/files/${userAvatar}` : null;
 
@@ -177,9 +177,6 @@ class Sidebar extends Component {
 
 
                     </Avatar>
-                    <AddButton onClick={() => {
-                        history.push('/videos/create');
-                    }}><span className={'icon-plus-1'}/></AddButton>
                     {!sidebarIsOpen && <MenuButtons>
                         {
                             menu.map((item, index) => {

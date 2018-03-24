@@ -3,34 +3,51 @@ import styled from 'styled-components'
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import _ from 'lodash'
-
+import {color} from "../theme";
+import 'webrtc-adapter';
 const Wrapper = styled.div `
-    
+    width: 480px;
+    height: 320px;
+    margin-top: 10px;
 `
 
 const Video = styled.div `
-
     border: 1px solid rgba(0,0, 0, 0.1);
     cursor: pointer;
     &:hover{
         opacity: 0.7;
     }
     video {
-        max-width: 100%;
+        width: 100%;
         height: auto;
+        max-height: 100%;
+        object-fit: cover;
     }
    
 `
 const Title = styled.h2 `
-    font-size: 17px;
+    font-size: 15px;
+    padding: 0;
+    margin: 10px 0;
+    color: ${color.body};
+    font-weight: 400;
+    text-align: center;
+`
+
+const LiveText = styled.span `
+    display: inline-block;
+    border: 1px solid #e71327;
+    padding: 3px 10px;
+    color: ${color.body};
+    line-height: 12px;
 `
 
 const logError = (err) => {
     console.log("Log Error:", err);
 };
 
-let RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
-let RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
+//let RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
+//let RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
 const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 let pcPeers = {};
 
@@ -234,7 +251,7 @@ class CameraItem extends React.Component {
                 }}>
                     <video autoPlay={true} ref={(ref) => this.cameraRef = ref} src={this.remoteStream}/>
                 </Video>
-                <Title>{camera.name}</Title>
+                <Title>{camera.name} <LiveText>Live</LiveText></Title>
             </Wrapper>
         )
 

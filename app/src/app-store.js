@@ -1,5 +1,6 @@
 import ClientPubSub from "./pubsub";
 import {ws} from "./config";
+import {EventEmitter} from 'fbemitter'
 
 export default class AppStore {
     constructor() {
@@ -7,12 +8,13 @@ export default class AppStore {
         this._connected = false;
 
         this.queue = [];
+        this.event = new EventEmitter();
 
         this.connected = this.connected.bind(this);
         this.runQueue = this.runQueue.bind(this);
         this.publish = this.publish.bind(this);
         this.broadcast = this.broadcast.bind(this);
-
+        this.recoding = false;
 
         this.pubsub = new ClientPubSub({reconnect: true, url: ws});
 
@@ -21,6 +23,7 @@ export default class AppStore {
             this._connected = false;
 
         });
+
         this.pubsub.onError((e) => {
 
             console.log("Connection is error", e);
@@ -40,22 +43,25 @@ export default class AppStore {
             // run queue
             this.runQueue();
 
-            console.log("Success connected to the server");
-
-            this.pubsub.subscribe('tabvn', (message) => {
-                console.log("receive from subscriber", message);
-            });
-
-            this.pubsub.publish('tabvn', {hi: "toan", date: new Date()}, () => {
-                console.log("Message published to the server");
-            });
-
-            this.pubsub.broadcast('tabvn', {name: "Toan Ngyen DInh"}, () => {
-                console.log("broadcast is sent")
-            });
+            if (this.recoding) {
+                console.log("Start camera after reconnect");
+                this.start_camera();
+            }
 
 
         })
+    }
+
+    start_camera() {
+
+        this.event.emit('start_camera', true);
+        this.recoding = true;
+
+    }
+
+    stop_camera() {
+        this.recoding = false;
+        this.event.emit('start_camera', false);
     }
 
     connected() {
