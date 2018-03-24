@@ -33,23 +33,24 @@ const MainStack = StackNavigator(
     },
     {
         navigationOptions: {
-            header: null
+            header: null,
+            gesturesEnabled: false
         },
     }
 );
 
 const AuthStack = StackNavigator(
     {
-        Home: {
+        SignIn: {
             screen: props => <Login {...props} {...{store: store}} />,
         },
-        Register: {
-            screen: Register
+        SignUp: {
+            screen: props => <Register {...props} {...{store: store}} />
         }
     },
     {
         navigationOptions: {
-            header: null
+            header: null,
         },
         cardStyle: {
             backgroundColor: '#FFF'
@@ -71,9 +72,10 @@ export default StackNavigator(
     },
     {
         initialRouteName: 'AuthLoading',
-        mode: 'modal',
+        mode: 'card',
         navigationOptions: {
-            header: null
+            header: null,
+            gesturesEnabled: false
         },
         cardStyle: {
             backgroundColor: '#FFF'

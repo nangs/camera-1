@@ -58,11 +58,19 @@ export default class AppStore {
         })
     }
 
+    /**
+     * Set token to storage
+     * @param token
+     */
     setToken(token = null) {
         this.token = token;
         AsyncStorage.setItem('@tabvn_camera:token', token ? JSON.stringify(token) : "");
     }
 
+    /**
+     * Get Token From storage
+     * @returns {Promise<*>}
+     */
     async getToken() {
         if (this.token) {
             return this.token;
@@ -71,10 +79,10 @@ export default class AppStore {
         try {
             _token = await AsyncStorage.getItem('@tabvn_camera:token');
 
-            try{
+            try {
                 _token = JSON.parse(_token);
             }
-            catch (err){
+            catch (err) {
 
             }
         } catch (error) {
@@ -83,6 +91,10 @@ export default class AppStore {
         return _token;
     }
 
+    /**
+     * Get user from storage
+     * @returns {Promise<*>}
+     */
     async getUser() {
 
         let _user = null;
@@ -102,6 +114,10 @@ export default class AppStore {
         return _user;
     }
 
+    /**
+     * Set user to storage
+     * @param user
+     */
     setUser(user = null) {
 
         this.user = user;
@@ -109,6 +125,79 @@ export default class AppStore {
 
     }
 
+    /**
+     * Login user
+     * @param email
+     * @param password
+     * @returns {Promise<any>}
+     */
+    login(email, password) {
+        return new Promise((resolve, reject) => {
+
+            const fields = {
+                id: true,
+                userId: true,
+                created: true,
+                user: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    created: true,
+                }
+
+            };
+
+            this.service.mutation('login', {email: email, password: password}, fields).then((res) => {
+
+                const user = _.get(res, 'user');
+
+                const token = {
+                    id: _.get(res, 'id'),
+                    userId: _.get(res, 'userId'),
+                    created: _.get(res, 'created')
+                };
+                this.setToken(token);
+                this.setUser(user);
+                return resolve(res);
+
+            }).catch((err) => {
+                return reject(err);
+            })
+        })
+    }
+
+    /**
+     * Create user account
+     * @param user
+     * @returns {Promise<any>}
+     */
+    register(user) {
+        return new Promise((resolve, reject) => {
+            const email = _.get(user, 'email', '');
+            const password = _.get(user, 'password');
+
+            const fields = {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                created: true,
+            };
+
+            this.service.mutation('create_user', {email: email, password: password}, fields).then((res) => {
+
+                return resolve(res);
+
+            }).catch((err) => {
+                return reject(err);
+            })
+        })
+    }
+
+    /**
+     * Start camera stream
+     */
     start_camera() {
 
         this.event.emit('start_camera', true);
@@ -116,16 +205,26 @@ export default class AppStore {
 
     }
 
+    /**
+     * Stop Camera
+     */
     stop_camera() {
         this.recoding = false;
         this.event.emit('start_camera', false);
     }
 
+    /**
+     * Check if client is connected to server
+     * @returns {boolean}
+     */
     connected() {
 
         return this._connected;
     }
 
+    /**
+     * Run all queue
+     */
     runQueue() {
         if (this.queue.length) {
             this.queue.forEach((q, index) => {
@@ -136,6 +235,11 @@ export default class AppStore {
         }
     }
 
+
+    /**
+     * Do single queue
+     * @param q
+     */
     executeQueue(q) {
 
         switch (q.type) {
@@ -249,6 +353,10 @@ export default class AppStore {
         }
     }
 
+    /**
+     * Get client ID
+     * @returns {*}
+     */
     clientId() {
         if (this.connected()) {
             return this.pubsub.id();

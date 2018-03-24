@@ -51,42 +51,13 @@ export default class Login extends React.Component {
                 this.setState({
                     isFetching: true
                 }, () => {
-                    const fields = {
-                        id: true,
-                        userId: true,
-                        created: true,
-                        user: {
-                            id: true,
-                            firstName: true,
-                            lastName: true,
-                            email: true,
-                            created: true,
-                        }
 
-                    };
-
-                    store.service.mutation('login', {email: email, password: password}, fields).then((res) => {
-
-                        console.log(res);
-
-                        const user = _.get(res, 'user');
-
-                        const token = {
-                            id: _.get(res, 'id'),
-                            userId: _.get(res, 'userId'),
-                            created: _.get(res, 'created')
-                        };
-                        store.setToken(token);
-                        store.setUser(user);
-
+                    store.login(email, password).then(() => {
                         this.setState({
                             isFetching: false
                         }, () => {
                             this.props.navigation.navigate('App');
                         });
-
-
-                        // time to move to another components
 
                     }).catch((err) => {
 
@@ -98,8 +69,8 @@ export default class Login extends React.Component {
                             emailError: !!isPasswordError || !errorMessage,
                             isFetching: false
                         });
+                    });
 
-                    })
                 })
             }
         });
@@ -142,7 +113,9 @@ export default class Login extends React.Component {
 
                         <AdditionActions>
                             <Text>Don't have account? </Text>
-                            <Button transparent><Text>Sign Up</Text></Button>
+                            <Button onPress={() => {
+                                this.props.navigation.navigate('SignUp');
+                            }} transparent><Text>Sign Up</Text></Button>
                         </AdditionActions>
                     </Form>
                     <ActivityIndicator animating={this.state.isFetching} hidesWhenStopped={true}/>
