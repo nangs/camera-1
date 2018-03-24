@@ -15,7 +15,6 @@ Amplify.configure(aws_exports);
 
 const store = new AppStore();
 
-
 AppState.addEventListener('change', (state) => {
     store.event.emit('app_change', state);
 });
