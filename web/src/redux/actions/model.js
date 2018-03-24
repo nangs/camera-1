@@ -345,7 +345,7 @@ export const getModel = (modelName, id, cache = true) => {
             }
 
             const modelFields = getModelFields(modelName);
-            service.query(modelName, {_id: id}, modelFields).then((data) => {
+            service.query(modelName, {id: id}, modelFields).then((data) => {
                 // save model to store
                 dispatch(addModels(modelName, [data]));
                 return resolve(data);

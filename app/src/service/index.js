@@ -1,29 +1,14 @@
-import axios from 'axios'
-import {config} from "../config";
 import _ from 'lodash'
 
 
 export default class Service {
 
-    constructor() {
+    constructor(api) {
 
-        let instance = axios.create({
-            baseURL: config.api
-        });
-
-        instance.defaults.headers.post['Content-Type'] = 'application/json';
-
-        this.instance = instance;
+        this._api = api;
         this.token = null;
 
 
-        let uploadInstance = axios.create({
-            baseURL: '',
-        });
-
-        uploadInstance.defaults.headers.common = {};
-
-        this.uploadInstance = uploadInstance;
     }
 
     /**
@@ -57,73 +42,28 @@ export default class Service {
      */
     setToken(token = null) {
         this.token = token;
-
-
-        //this.instance.defaults.headers.common['Authorization'] = _.get(token, '_id');
     }
 
-    /**
-     * Get request
-     * @param path
-     * @param options
-     * @returns {AxiosPromise<any>}
-     */
-    get(path, options = {}) {
-        path = this.path(path);
 
-        let defaultOptions = {
-            headers: {
-                'Authorization': _.get(this.token, 'id'),
-            }
-        };
-        options = Object.assign(options, defaultOptions);
+    fetch(path, data) {
+        return new Promise((resolve, reject) => {
 
-        return this.instance.get(path, options);
+            fetch(`${this._api}${path}`, {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    Authorization: this.tokenId(),
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            }).then((response) => {
+                return resolve(response.json());
+            }).catch((err) => {
+                reject(err);
+            });
+        })
     }
 
-    /**
-     * Post request
-     * @param path
-     * @param data
-     * @param options
-     * @returns {AxiosPromise<any>}
-     */
-    post(path, data, options = {}) {
-        path = this.path(path);
-
-        let defaultOptions = {
-            headers: {
-                'Authorization': _.get(this.token, 'token'),
-            }
-        };
-
-        options = Object.assign(options, defaultOptions);
-
-        return this.instance.post(path, data, options);
-    }
-
-    /**
-     * Put request
-     * @param path
-     * @param data
-     * @param options
-     * @returns {AxiosPromise<any>}
-     */
-    put(path, data, options = null) {
-        path = this.path(path);
-        return this.instance.put(path, data, options);
-    }
-
-    /**
-     * Delete request
-     * @param path
-     * @param options
-     * @returns {AxiosPromise}
-     */
-    delete(path, options) {
-        path = this.path(path);
-        return this.instance.delete(path, options);
-    }
 
     /**
      * Get fields params for return results.
@@ -202,15 +142,14 @@ export default class Service {
 
         return new Promise((resolve, reject) => {
 
-            this.post('', {query: query, variables: null}).then((res) => {
+            this.fetch('', {query: query, variables: null}).then((res) => {
 
-
-                const errors = _.get(res, 'data.errors');
+                const errors = _.get(res, 'errors');
                 if (errors) {
                     return reject(errors);
                 }
                 // remember need two data.data
-                return resolve(_.get(res, `data.data.${name}`));
+                return resolve(_.get(res, `data.${name}`));
 
             }).catch((err) => {
                 return reject(err);
@@ -246,14 +185,15 @@ export default class Service {
 
         return new Promise((resolve, reject) => {
 
-            this.post('', {query: queryStr, variables: null}).then((res) => {
+            this.fetch('', {query: queryStr, variables: null}).then((res) => {
 
-                const errors = _.get(res, 'data.errors');
+
+                const errors = _.get(res, 'errors');
                 if (errors) {
                     return reject(errors);
                 }
                 // remember need two data.data
-                return resolve(_.get(res, `data.data`));
+                return resolve(_.get(res, `data`));
 
             }).catch((err) => {
                 return reject(err);
@@ -263,7 +203,6 @@ export default class Service {
 
 
     }
-
 
     /**
      * Mutation
@@ -285,21 +224,21 @@ export default class Service {
             `
 
 
-        if(!fields){
+        if (!fields) {
             query = `
                 mutation { ${name}${args} }
             `
         }
         return new Promise((resolve, reject) => {
 
-            this.post('', {query: query, variables: null}).then((res) => {
+            this.fetch('', {query: query, variables: null}).then((res) => {
 
-                const errors = _.get(res, 'data.errors');
+                const errors = _.get(res, 'errors');
                 if (errors) {
                     return reject(errors);
                 }
                 // remember need two data.data
-                return resolve(_.get(res, `data.data.${name}`));
+                return resolve(_.get(res, `data.${name}`));
 
             }).catch((err) => {
                 return reject(err);
@@ -350,68 +289,7 @@ export default class Service {
 
         });
 
-
     }
 
-    upload(files) {
-
-        return new Promise((resolve, reject) => {
-
-            let data = new FormData();
-            _.each(files, (file) => {
-                data.append('files', file);
-            });
-            this.post('/upload', data).then((res) => {
-
-                return resolve(res.data);
-            }).catch((err) => {
-                return reject(err);
-            })
-
-
-        });
-
-    }
-
-    /**
-     * Upload file to amazon s3
-     * @param url
-     * @param file
-     * @returns {AxiosPromise<any>}
-     */
-    s3Upload(url, file, cb = () => {
-    }) {
-
-        const options = {
-            headers: {
-                'Content-Type': file.type,
-            }
-        };
-
-        axios({
-            url: url,
-            method: 'put',
-            headers: options.headers,
-            onUploadProgress: (event) => {
-
-                return cb({
-                    event: 'onUploadProgress',
-                    payload: event,
-                });
-            },
-            data: file,
-        }).then(() => {
-
-            return cb({
-                event: 'success',
-                payload: null,
-            })
-        }).catch((err) => {
-            return cb({
-                event: 'error',
-                payload: err,
-            })
-        });
-    }
 
 }

@@ -8,7 +8,7 @@ const Text = styled.Text `
 
 `
 
-export default class Home extends React.Component {
+export default class Register extends React.Component {
 
 
 
@@ -22,7 +22,7 @@ export default class Home extends React.Component {
         return (
             <Container>
 
-                <Text>Home Screen!</Text>
+                <Text>Login Screen!</Text>
             </Container>
         )
     }

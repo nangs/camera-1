@@ -5,14 +5,13 @@
 /app/package-lock.json
 /app/yarn.lock
 /.idea
+.idea/
+/.idea/*
 .idea/*
 .idea/workspace.xml
 /.DS_Store
 .DS_Store
 /server/node_modules
 /server/package-lock.json
-<<<<<<< HEAD
-=======
 /web/node_modules
 /web/package-lock.json
->>>>>>> b6bdf7da7fae265e787c3194ad13844cffdf87c5
