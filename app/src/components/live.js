@@ -87,11 +87,13 @@ export default class Live extends React.Component {
 
         };
 
+        this._onAppChange = this._onAppChange.bind(this)
         this._onStart = this._onStart.bind(this);
         this._requestUserMedia = this._requestUserMedia.bind(this);
         this._onStop = this._onStop.bind(this);
         this.createPeerConnection = this.createPeerConnection.bind(this);
         this.exchange = this.exchange.bind(this);
+
     }
 
     _requestUserMedia() {
@@ -257,20 +259,18 @@ export default class Live extends React.Component {
         }
     }
 
-    _onStart() {
+    _onStart(bool = true) {
 
         const {store} = this.props;
 
-        const {live} = this.state;
-        if (!live) {
+        console.log(bool);
+
+        if (bool) {
             rtc.getLocalStream(this.state.isFront, (stream) => {
                 console.log("Got stream source", stream);
-
-                console.log(this.state.title);
-
                 this.setState({
                     localStreamUrl: stream.toURL(),
-                    live: true,
+                    live: bool,
                 }, () => {
                     // ready to publish
                     store.send({
@@ -316,13 +316,15 @@ export default class Live extends React.Component {
                 });
             });
         } else {
+            // let stop
 
             this.setState({
                 live: false
             }, () => {
                 this._onStop();
-            });
+            })
         }
+
 
     }
 
@@ -343,12 +345,64 @@ export default class Live extends React.Component {
 
     }
 
+
+    /**
+     * When app is change to background or active we do need catch this info.
+     * @param state
+     * @private
+     */
+    _onAppChange(state) {
+
+        const {store} = this.props;
+
+        console.log("app state", state);
+        switch (state) {
+
+            case 'inactive':
+
+                this.setState({
+                    live: false,
+                }, () => {
+                    this._onStop();
+                });
+
+                break;
+
+            case 'active':
+                // if video in action is recoding we do need to turn resum.
+                if (store.recoding) {
+                    this._onStart(true);
+                }
+
+                break;
+
+
+            default:
+
+                break;
+        }
+
+    }
+
     componentDidMount() {
+
+        const {store} = this.props;
         this._requestUserMedia();
+        store.event.addListener('start_camera', this._onStart);
+        store.event.addListener('app_change', this._onAppChange)
+    }
+
+    componentWillUnmount() {
+        const {store} = this.props;
+        store.event.removeListener('start_camera', this._onStart);
+        store.event.removeListener('app_change', this._onAppChange);
+
     }
 
 
     render() {
+
+        const {store} = this.props;
 
         return (
             <LiveContainer>
@@ -365,7 +419,14 @@ export default class Live extends React.Component {
                     value={this.state.title}/>
                 }
                 <Controls>
-                    <Button isLive={this.state.live} onPress={this._onStart}>
+                    <Button isLive={this.state.live} onPress={() => {
+                        if (store.recoding) {
+                            store.stop_camera();
+                        } else {
+                            store.start_camera();
+                        }
+
+                    }}>
                         <Text isLive={this.state.live}>{this.state.live ? 'Stop' : 'Start'}</Text>
                     </Button>
                 </Controls>
