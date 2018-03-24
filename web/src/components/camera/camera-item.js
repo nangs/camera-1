@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import _ from 'lodash'
 import {color} from "../theme";
-
+import 'webrtc-adapter';
 const Wrapper = styled.div `
     width: 480px;
     height: 320px;
@@ -46,8 +46,8 @@ const logError = (err) => {
     console.log("Log Error:", err);
 };
 
-let RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
-let RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
+//let RTCPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection || window.msRTCPeerConnection;
+//let RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription || window.webkitRTCSessionDescription || window.msRTCSessionDescription;
 const configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
 let pcPeers = {};
 
