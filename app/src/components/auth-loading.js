@@ -23,7 +23,8 @@ export default class AuthLoading extends React.Component {
     async _getUserToken() {
         const {store} = this.props;
         const userToken = await store.getToken();
-        this.props.navigation.navigate(userToken ? 'App' : 'Auth');
+        this.props.navigation.navigate('Auth');
+        //this.props.navigation.navigate(userToken ? 'App' : 'Auth');
     };
 
     componentDidMount() {
@@ -33,7 +34,7 @@ export default class AuthLoading extends React.Component {
     render() {
         return (
             <Container>
-                <ActivityIndicator/>
+                <ActivityIndicator size={'large'}/>
                 <StatusBar barStyle="default"/>
             </Container>
         );

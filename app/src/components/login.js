@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import {Container, Content, Header, Body, Title, Form, Item, Input, Label, Button, Text} from 'native-base'
+import {ActivityIndicator} from 'react-native'
 
 const Actions = styled.View `
     padding: 20px 10px;
@@ -21,7 +22,8 @@ export default class Login extends React.Component {
             email: "",
             password: "",
             emailError: null,
-            passwordError: null
+            passwordError: null,
+            isFetching: false,
         };
 
         this._onSubmit = this._onSubmit.bind(this);
@@ -41,31 +43,63 @@ export default class Login extends React.Component {
         const isEmailValid = this.isEmail(email);
         this.setState({
             emailError: !isEmailValid,
-            passwordError: password !== ""
+            passwordError: password === "" || !password
         }, () => {
 
             if (isEmailValid && password !== "") {
 
-                const fields = {
-                    id: {},
-                    userId: {},
-                    created: {},
-                    user: {
-                        id: {},
-                        firstName: {},
-                        lastName: {},
-                        email: {},
-                        created: {},
-                    }
+                this.setState({
+                    isFetching: true
+                }, () => {
+                    const fields = {
+                        id: true,
+                        userId: true,
+                        created: true,
+                        user: {
+                            id: true,
+                            firstName: true,
+                            lastName: true,
+                            email: true,
+                            created: true,
+                        }
 
-                };
+                    };
 
-                store.service.mutation('login', {email: email, password: password}, fields).then((res) => {
+                    store.service.mutation('login', {email: email, password: password}, fields).then((res) => {
 
-                    console.log(res);
+                        console.log(res);
 
-                }).catch((err) => {
-                    console.log("An error", err);
+                        const user = _.get(res, 'user');
+
+                        const token = {
+                            id: _.get(res, 'id'),
+                            userId: _.get(res, 'userId'),
+                            created: _.get(res, 'created')
+                        };
+                        store.setToken(token);
+                        store.setUser(user);
+
+                        this.setState({
+                            isFetching: false
+                        }, () => {
+                            this.props.navigation.navigate('App');
+                        });
+
+
+                        // time to move to another components
+
+                    }).catch((err) => {
+
+                        const errorMessage = _.get(err, '[0].message', '');
+                        const isEmailError = errorMessage.search(/Email/);
+                        const isPasswordError = errorMessage.search(/Password/);
+                        this.setState({
+                            passwordError: !!isEmailError || !errorMessage,
+                            emailError: !!isPasswordError || !errorMessage,
+                            isFetching: false
+                        });
+
+                    })
                 })
             }
         });
@@ -83,14 +117,15 @@ export default class Login extends React.Component {
                     </Body>
                 </Header>
                 <Content>
+
                     <Form>
-                        <Item floatingLabel error={true}>
+                        <Item floatingLabel error={this.state.emailError}>
                             <Label>Email</Label>
                             <Input value={this.state.email} onChangeText={(text) => this.setState({
                                 email: text
                             })} autoCapitalize={'none'} keyboardType={'email-address'}/>
                         </Item>
-                        <Item floatingLabel last>
+                        <Item error={this.state.passwordError} floatingLabel last>
                             <Label>Password</Label>
                             <Input value={this.state.password} onChangeText={(text) => {
                                 this.setState({
@@ -100,7 +135,7 @@ export default class Login extends React.Component {
                         </Item>
 
                         <Actions>
-                            <Button onPress={this._onSubmit} block>
+                            <Button disabled={this.state.isFetching} onPress={this._onSubmit} block>
                                 <Text>Sign In</Text>
                             </Button>
                         </Actions>
@@ -109,10 +144,8 @@ export default class Login extends React.Component {
                             <Text>Don't have account? </Text>
                             <Button transparent><Text>Sign Up</Text></Button>
                         </AdditionActions>
-
-
                     </Form>
-
+                    <ActivityIndicator animating={this.state.isFetching} hidesWhenStopped={true}/>
 
                 </Content>
             </Container>

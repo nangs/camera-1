@@ -30,6 +30,11 @@ const MainStack = StackNavigator(
         Home: {
             screen: App
         }
+    },
+    {
+        navigationOptions: {
+            header: null
+        },
     }
 );
 

@@ -46,6 +46,7 @@ export default class Service {
 
 
     fetch(path, data) {
+
         return new Promise((resolve, reject) => {
 
             fetch(`${this._api}${path}`, {
