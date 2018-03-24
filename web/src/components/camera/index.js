@@ -38,8 +38,9 @@ const Title = styled.h2 `
 `
 
 const CameraList = styled.div `
-    
-    
+       display: flex;
+       flex-flow: row wrap;
+       justify-content: space-around;
 `
 
 const COLLECTION = 'cameras';
