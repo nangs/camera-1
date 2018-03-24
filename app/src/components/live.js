@@ -263,7 +263,6 @@ export default class Live extends React.Component {
 
         const {store} = this.props;
 
-        console.log(bool);
 
         if (bool) {
             rtc.getLocalStream(this.state.isFront, (stream) => {
@@ -334,7 +333,12 @@ export default class Live extends React.Component {
 
         const camera = this.state.camera;
         if (camera) {
-            store.publish(`camera_stop_${camera.clientId}`);
+            store.send({
+                action: 'camera_stop',
+                payload: camera.clientId
+            });
+            
+            store.publish(`camera_stop_${camera.clientId}`, {id: camera.clientId});
         }
         if (pcPeers.length) {
             pcPeers.forEach((pc, index) => {
@@ -355,7 +359,6 @@ export default class Live extends React.Component {
 
         const {store} = this.props;
 
-        console.log("app state", state);
         switch (state) {
 
             case 'inactive':

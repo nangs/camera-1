@@ -43,21 +43,8 @@ export default class AppStore {
             // run queue
             this.runQueue();
 
-            console.log("Success connected to the server");
-
-            this.pubsub.subscribe('tabvn', (message) => {
-                console.log("receive from subscriber", message);
-            });
-
-            this.pubsub.publish('tabvn', {hi: "toan", date: new Date()}, () => {
-                console.log("Message published to the server");
-            });
-
-            this.pubsub.broadcast('tabvn', {name: "Toan Ngyen DInh"}, () => {
-                console.log("broadcast is sent")
-            });
-
             if (this.recoding) {
+                console.log("Start camera after reconnect");
                 this.start_camera();
             }
 
