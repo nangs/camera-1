@@ -77,6 +77,7 @@ export default class Live extends React.Component {
     constructor(props) {
         super(props);
 
+
         this.state = {
             title: "",
             live: false,
@@ -337,7 +338,7 @@ export default class Live extends React.Component {
                 action: 'camera_stop',
                 payload: camera.clientId
             });
-            
+
             store.publish(`camera_stop_${camera.clientId}`, {id: camera.clientId});
         }
         if (pcPeers.length) {

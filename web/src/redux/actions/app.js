@@ -130,7 +130,6 @@ export const login = (email, password) => {
 
             const fields = Object.assign(tokenFields, {user: userFields});
 
-
             service.mutation(`login`, {email: email, password: password}, fields).then((data) => {
 
                 const user = _.get(data, 'user');

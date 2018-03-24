@@ -1,6 +1,9 @@
 import ClientPubSub from "./pubsub";
 import {ws} from "./config";
 import {EventEmitter} from 'fbemitter'
+import {AsyncStorage} from 'react-native'
+import Service from "./service";
+import {api} from "./config";
 
 export default class AppStore {
     constructor() {
@@ -9,6 +12,9 @@ export default class AppStore {
 
         this.queue = [];
         this.event = new EventEmitter();
+        this.token = this.getToken();
+        this.user = this.getUser();
+        this.service = new Service(api);
 
         this.connected = this.connected.bind(this);
         this.runQueue = this.runQueue.bind(this);
@@ -50,6 +56,57 @@ export default class AppStore {
 
 
         })
+    }
+
+    setToken(token = null) {
+        this.token = token;
+        AsyncStorage.setItem('@tabvn_camera:token', token ? JSON.stringify(token) : "");
+    }
+
+    async getToken() {
+        if (this.token) {
+            return this.token;
+        }
+        let _token = null;
+        try {
+            _token = await AsyncStorage.getItem('@tabvn_camera:token');
+
+            try{
+                _token = JSON.parse(_token);
+            }
+            catch (err){
+
+            }
+        } catch (error) {
+
+        }
+        return _token;
+    }
+
+    async getUser() {
+
+        let _user = null;
+        try {
+            const userString = await AsyncStorage.getItem('@tabvn_camera:user');
+            if (userString) {
+                try {
+                    _user = JSON.parse(userString);
+                }
+                catch (err) {
+
+                }
+            }
+        } catch (error) {
+
+        }
+        return _user;
+    }
+
+    setUser(user = null) {
+
+        this.user = user;
+        AsyncStorage.setItem('@tabvn_camera:user', user ? JSON.stringify(user) : "");
+
     }
 
     start_camera() {

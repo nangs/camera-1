@@ -1,3 +1,5 @@
 export const production = false;
-export const ws = 'ws://192.168.1.3:3001';
+const ip = `192.168.0.248`;
+export const ws = `ws://${ip}:3001`;
+export const api = production ? 'https://camera.tabvn.com': `http://${ip}:3001/api`;
 
