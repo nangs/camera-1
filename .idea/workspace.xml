@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="c2c2980f-2f30-441a-841a-8ec013841713" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/app/src/components/home.js" afterPath="$PROJECT_DIR$/app/src/components/home.js" />
+      <change beforePath="$PROJECT_DIR$/app/src/components/live.js" afterPath="$PROJECT_DIR$/app/src/components/live.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -16,11 +17,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="home.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="home.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/components/home.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="504">
-              <caret line="28" column="61" lean-forward="false" selection-start-line="28" selection-start-column="61" selection-end-line="28" selection-end-column="61" />
+            <state relative-caret-position="414">
+              <caret line="23" column="71" lean-forward="false" selection-start-line="23" selection-start-column="71" selection-end-line="23" selection-end-column="71" />
+              <folding>
+                <element signature="e#0#25#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="live.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/src/components/live.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="363">
+              <caret line="451" column="27" lean-forward="false" selection-start-line="451" selection-start-column="27" selection-end-line="451" selection-end-column="27" />
               <folding>
                 <element signature="e#0#25#0" expanded="true" />
               </folding>
@@ -81,7 +94,6 @@
         <option value="$PROJECT_DIR$/web/src/pubsub/index.js" />
         <option value="$PROJECT_DIR$/web/src/redux/reducers/app.js" />
         <option value="$PROJECT_DIR$/web/src/components/camera/camera-item.js" />
-        <option value="$PROJECT_DIR$/app/src/components/live.js" />
         <option value="$PROJECT_DIR$/web/src/helpers/service.js" />
         <option value="$PROJECT_DIR$/web/src/redux/actions/model.js" />
         <option value="$PROJECT_DIR$/web/src/redux/actions/app.js" />
@@ -94,6 +106,7 @@
         <option value="$PROJECT_DIR$/app/src/app-store.js" />
         <option value="$PROJECT_DIR$/app/ios/TabvnCamera/Info.plist" />
         <option value="$PROJECT_DIR$/app/src/components/home.js" />
+        <option value="$PROJECT_DIR$/app/src/components/live.js" />
       </list>
     </option>
   </component>
@@ -161,6 +174,13 @@
               <item name="Camera" type="462c0819:PsiDirectoryNode" />
               <item name="app" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Camera" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Camera" type="462c0819:PsiDirectoryNode" />
+              <item name="app" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="components" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="Camera" type="b2602c69:ProjectViewProjectNode" />
@@ -235,7 +255,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="55929000" />
+    <option name="totallyTimeSpent" value="57608000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1920" height="1003" extended-state="6" />
@@ -622,14 +642,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/components/live.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-908">
-          <caret line="238" column="58" lean-forward="false" selection-start-line="238" selection-start-column="58" selection-end-line="238" selection-end-column="58" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/components/auth-loading.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="378">
@@ -678,8 +690,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/components/home.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
-          <caret line="28" column="61" lean-forward="false" selection-start-line="28" selection-start-column="61" selection-end-line="28" selection-end-column="61" />
+        <state relative-caret-position="414">
+          <caret line="23" column="71" lean-forward="false" selection-start-line="23" selection-start-column="71" selection-end-line="23" selection-end-column="71" />
+          <folding>
+            <element signature="e#0#25#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/components/live.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="363">
+          <caret line="451" column="27" lean-forward="false" selection-start-line="451" selection-start-column="27" selection-end-line="451" selection-end-column="27" />
           <folding>
             <element signature="e#0#25#0" expanded="true" />
           </folding>

@@ -21,6 +21,7 @@ export default class Home extends React.Component {
                         <View style={styles.rightActionView}>
                             <TouchableHighlight underlayColor={"#FFF"} onPress={() => {
                                 console.log("Begin to live");
+                                this.props.navigation.navigate('Live');
                             }}>
                                 <Image style={{width: 20, height: 20}} source={iconVideo}/>
                             </TouchableHighlight>

@@ -1,5 +1,5 @@
 import React from 'react'
-import {StatusBar, StyleSheet} from 'react-native'
+import {StatusBar, StyleSheet, View, TouchableHighlight} from 'react-native'
 import styled from 'styled-components'
 import RTC from "../rtc";
 import WebRTCView from "../rtc/rtc-view";
@@ -31,7 +31,7 @@ const Button = styled.TouchableHighlight `
     border-width: 2;
     justify-content: center;
 `
-const Text = styled.Text `
+const StartButtonText = styled.Text `
     color: ${props => props.isLive ? '#e74c3c' : "#FFF"};
     width: 70;
     font-size: 18;
@@ -64,6 +64,20 @@ const Controls = styled.View`
     justify-content: center;
 `
 
+const BackButton = styled.View `
+    display: flex;
+    position: absolute;
+    bottom: 0;
+    left: 20px;
+    height: 100;
+    align-items: center;
+    justify-content: center;
+`
+
+const BackButtonText = styled.Text `
+    color: #FFF;
+    font-size: 15;
+`
 const logError = (err) => {
     console.log("Log Error:", err)
 };
@@ -94,6 +108,9 @@ export default class Live extends React.Component {
         this._onStop = this._onStop.bind(this);
         this.createPeerConnection = this.createPeerConnection.bind(this);
         this.exchange = this.exchange.bind(this);
+
+        this._event_start_camera = null;
+        this._event_app_change = null;
 
     }
 
@@ -392,14 +409,15 @@ export default class Live extends React.Component {
 
         const {store} = this.props;
         this._requestUserMedia();
-        store.event.addListener('start_camera', this._onStart);
-        store.event.addListener('app_change', this._onAppChange)
+        this._event_start_camera = store.event.addListener('start_camera', this._onStart);
+        this._event_app_change = store.event.addListener('app_change', this._onAppChange)
     }
 
     componentWillUnmount() {
         const {store} = this.props;
-        store.event.removeListener('start_camera', this._onStart);
-        store.event.removeListener('app_change', this._onAppChange);
+        console.log("UnMount:", store);
+        this._event_app_change.remove();
+        this._event_start_camera.remove();
 
     }
 
@@ -411,6 +429,8 @@ export default class Live extends React.Component {
         return (
             <LiveContainer>
                 <StatusBar hidden={true}/>
+
+
                 <WebRTCView customStyle={styles.localStreamView} streamURL={this.state.localStreamUrl}/>
                 {!this.state.live && <Input
                     placeholderTextColor={"#FFF"}
@@ -422,7 +442,17 @@ export default class Live extends React.Component {
                     }}
                     value={this.state.title}/>
                 }
+
+
                 <Controls>
+
+                    {!this.state.live && <BackButton>
+                        <TouchableHighlight onPress={() => {
+                            this.props.navigation.goBack();
+                        }}><BackButtonText>Cancel</BackButtonText>
+                        </TouchableHighlight>
+                    </BackButton>}
+
                     <Button isLive={this.state.live} onPress={() => {
                         if (store.recoding) {
                             store.stop_camera();
@@ -431,7 +461,7 @@ export default class Live extends React.Component {
                         }
 
                     }}>
-                        <Text isLive={this.state.live}>{this.state.live ? 'Stop' : 'Start'}</Text>
+                        <StartButtonText isLive={this.state.live}>{this.state.live ? 'Stop' : 'Start'}</StartButtonText>
                     </Button>
                 </Controls>
             </LiveContainer>
