@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React from 'react'
 import Live from "./src/components/live"
 import AppStore from './src/app-store'
 import {StackNavigator} from 'react-navigation'
@@ -7,8 +7,9 @@ import Register from "./src/components/register"
 import AuthLoading from "./src/components/auth-loading"
 import Home from "./src/components/home";
 import {AppState} from 'react-native'
-import Amplify, {Storage} from 'aws-amplify';
+import Amplify from 'aws-amplify';
 import aws_exports from './aws-exports';
+import Profile from "./src/components/profile";
 
 Amplify.configure(aws_exports);
 
@@ -19,7 +20,23 @@ AppState.addEventListener('change', (state) => {
     store.event.emit('app_change', state);
 });
 
+const UserStack = StackNavigator(
+    {
+        Profile: {
+            screen: props => <Profile {...props} {...{store: store}} />
+        }
+    },
+    {
+        navigationOptions: {
+            header: null,
+            gesturesEnabled: true
+        },
+        cardStyle: {
+            backgroundColor: '#FFF'
+        },
 
+    }
+)
 const MainStack = StackNavigator(
     {
         Home: {
@@ -27,6 +44,9 @@ const MainStack = StackNavigator(
         },
         Live: {
             screen: props => <Live {...props} {...{store: store}} />
+        },
+        User: {
+            screen: UserStack
         }
     },
     {
@@ -34,7 +54,11 @@ const MainStack = StackNavigator(
             header: null,
             gesturesEnabled: false
         },
-    }
+        cardStyle: {
+            backgroundColor: '#FFF'
+        },
+        mode: 'modal',
+    },
 );
 
 const AuthStack = StackNavigator(
@@ -56,6 +80,7 @@ const AuthStack = StackNavigator(
     }
 );
 
+
 export default StackNavigator(
     {
         AuthLoading: {
@@ -66,7 +91,8 @@ export default StackNavigator(
         },
         Auth: {
             screen: AuthStack
-        }
+        },
+
     },
     {
         initialRouteName: 'AuthLoading',

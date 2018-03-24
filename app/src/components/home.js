@@ -28,8 +28,7 @@ export default class Home extends React.Component {
                         </View>
                         <View style={styles.rightActionView}>
                             <TouchableHighlight underlayColor={"#FFF"} onPress={() => {
-
-                                console.log("Begin to show user panel")
+                                this.props.navigation.navigate('User');
                             }}>
                                 <Image style={styles.avatar} source={iconAvatar}/>
                             </TouchableHighlight>
