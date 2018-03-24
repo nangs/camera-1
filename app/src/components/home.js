@@ -19,12 +19,17 @@ export default class Home extends React.Component {
                     </Body>
                     <Right>
                         <View style={styles.rightActionView}>
-                            <TouchableHighlight>
+                            <TouchableHighlight underlayColor={"#FFF"} onPress={() => {
+                                console.log("Begin to live");
+                            }}>
                                 <Image style={{width: 20, height: 20}} source={iconVideo}/>
                             </TouchableHighlight>
                         </View>
                         <View style={styles.rightActionView}>
-                            <TouchableHighlight>
+                            <TouchableHighlight underlayColor={"#FFF"} onPress={() => {
+
+                                console.log("Begin to show user panel")
+                            }}>
                                 <Image style={styles.avatar} source={iconAvatar}/>
                             </TouchableHighlight>
                         </View>
