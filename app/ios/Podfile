@@ -12,6 +12,8 @@ target 'TabvnCamera' do
   ]
 
   pod 'react-native-webrtc', :path => '../node_modules/react-native-webrtc'
+  pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
+
   target 'TabvnCameraTests' do
     inherit! :search_paths
     # Pods for testing

@@ -4,6 +4,7 @@ import {EventEmitter} from 'fbemitter'
 import {AsyncStorage} from 'react-native'
 import Service from "./service";
 import {api} from "./config";
+import {Storage} from 'aws-amplify'
 
 export default class AppStore {
     constructor() {
@@ -15,7 +16,6 @@ export default class AppStore {
         this.token = this.getToken();
         this.user = this.getUser();
         this.service = new Service(api);
-
         this.connected = this.connected.bind(this);
         this.runQueue = this.runQueue.bind(this);
         this.publish = this.publish.bind(this);

@@ -16,20 +16,18 @@ export default class AuthLoading extends React.Component {
         super(props);
 
         this._getUserToken();
-
-
     }
 
+    /**
+     * Check user if logged or not
+     * @returns {Promise<void>}
+     * @private
+     */
     async _getUserToken() {
         const {store} = this.props;
         const userToken = await store.getToken();
-        this.props.navigation.navigate('Auth');
-        //this.props.navigation.navigate(userToken ? 'App' : 'Auth');
+        this.props.navigation.navigate(userToken ? 'App' : 'Auth');
     };
-
-    componentDidMount() {
-
-    }
 
     render() {
         return (

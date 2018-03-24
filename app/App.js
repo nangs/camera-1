@@ -1,34 +1,32 @@
 import React, {Component} from 'react'
 import Live from "./src/components/live"
 import AppStore from './src/app-store'
-import {AppState} from 'react-native'
 import {StackNavigator} from 'react-navigation'
 import Login from "./src/components/login"
 import Register from "./src/components/register"
 import AuthLoading from "./src/components/auth-loading"
+import Home from "./src/components/home";
+import {AppState} from 'react-native'
+import Amplify, {Storage} from 'aws-amplify';
+import aws_exports from './aws-exports';
+
+Amplify.configure(aws_exports);
 
 const store = new AppStore();
 
-class App extends Component {
 
-    componentDidMount() {
-        AppState.addEventListener('change', (state) => {
-            store.event.emit('app_change', state);
+AppState.addEventListener('change', (state) => {
+    store.event.emit('app_change', state);
+});
 
-        });
-    }
-
-    render() {
-        return (
-            <Live store={store}/>
-        );
-    }
-}
 
 const MainStack = StackNavigator(
     {
         Home: {
-            screen: App
+            screen: props => <Home {...props} {...{store: store}} />
+        },
+        Live: {
+            screen: props => <Live {...props} {...{store: store}} />
         }
     },
     {
