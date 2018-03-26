@@ -3,6 +3,8 @@ package com.tabvncamera;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.reactnative.ivpusic.imagepicker.PickerPackage;
+import com.RNFetchBlob.RNFetchBlobPackage;
 import com.amazonaws.amplify.pushnotification.RNPushNotificationPackage;
 import com.oney.WebRTCModule.WebRTCModulePackage;
 import com.imagepicker.ImagePickerPackage;
@@ -26,6 +28,8 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new PickerPackage(),
+            new RNFetchBlobPackage(),
             new RNPushNotificationPackage(),
             new WebRTCModulePackage(),
             new ImagePickerPackage()

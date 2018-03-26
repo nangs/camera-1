@@ -1,8 +1,23 @@
 import React from 'react'
 import styled from 'styled-components'
-import {Container, Header, Content, Thumbnail, Text, Left, Body, Icon, Title, Right, List, ListItem} from 'native-base'
-import {TouchableHighlight} from 'react-native'
+import {
+    Container,
+    Header,
+    Content,
+    Thumbnail,
+    Text,
+    Left,
+    Body,
+    Icon,
+    Title,
+    Right,
+    List,
+    ListItem,
+    ActionSheet
+} from 'native-base'
+import {TouchableHighlight, TouchableOpacity} from 'react-native'
 import {NavigationActions} from 'react-navigation'
+import ImagePicker from 'react-native-image-picker';
 
 const UserAvatarView = styled.View `
     padding: 20px;
@@ -13,16 +28,69 @@ const UserAvatarView = styled.View `
 
 export default class Profile extends React.Component {
 
+    constructor(props) {
+        super(props);
+
+        this._goBack = this._goBack.bind(this);
+        this._selectPhoto = this._selectPhoto.bind(this);
+
+        this.state = {
+            avatarSource: null
+        };
+
+    }
+
+    _goBack() {
+        this.props.navigation.dispatch(NavigationActions.back());
+    }
+
+    _selectPhoto() {
+        const {store} = this.props;
+        const options = {
+            quality: 1.0,
+            maxWidth: 500,
+            maxHeight: 500,
+            storageOptions: {
+                skipBackup: true
+            }
+        };
+
+        ImagePicker.showImagePicker(options, (response) => {
+            console.log('Response = ', response);
+
+            if (response.didCancel) {
+                console.log('User cancelled photo picker');
+            }
+            else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            }
+            else if (response.customButton) {
+                console.log('User tapped custom button: ', response.customButton);
+            }
+            else {
+                let source = {uri: response.uri};
+
+                // You can also display the image using data:
+                // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+
+
+
+                store.updateUserAvatar(response).then((result) => {
+                    console.log("got result", result);
+                });
+                this.setState({
+                    avatarSource: source
+                });
+            }
+        });
+    }
 
     render() {
         return (
             <Container>
                 <Header>
                     <Left>
-                        <TouchableHighlight underlayColor={"#FFF"} onPress={() => {
-                            console.log("Need go baack")
-                            this.props.navigation.dispatch(NavigationActions.back());
-                        }}>
+                        <TouchableHighlight underlayColor={"#FFF"} onPress={this._goBack}>
                             <Icon name='close'/>
                         </TouchableHighlight>
                     </Left>
@@ -35,8 +103,10 @@ export default class Profile extends React.Component {
                 </Header>
                 <Content>
                     <UserAvatarView>
-                        <Thumbnail large
-                                   source={{uri: 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mm&f=y'}}/>
+                        <TouchableOpacity onPress={this._selectPhoto}>
+                            <Thumbnail large
+                                       source={this.state.avatarSource}/>
+                        </TouchableOpacity>
                     </UserAvatarView>
 
                     <List>

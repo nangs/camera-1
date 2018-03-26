@@ -1,6 +1,8 @@
 PODS:
   - React (0.54.2):
     - React/Core (= 0.54.2)
+  - react-native-image-picker (0.14.3):
+    - React
   - react-native-webrtc (1.58.3):
     - React
   - React/Core (0.54.2):
@@ -18,6 +20,7 @@ PODS:
   - yoga (0.54.2.React)
 
 DEPENDENCIES:
+  - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-webrtc (from `../node_modules/react-native-webrtc`)
   - React/DevSupport (from `../node_modules/react-native`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga/Yoga.podspec`)
@@ -25,6 +28,8 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   React:
     :path: ../node_modules/react-native
+  react-native-image-picker:
+    :path: ../node_modules/react-native-image-picker
   react-native-webrtc:
     :path: ../node_modules/react-native-webrtc
   yoga:
@@ -32,9 +37,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   React: c237e42de9c70e5cac6eeb52b4cfd3a0910c1f00
+  react-native-image-picker: 42cfe2c8435d893414f8714a81e480313cb1412b
   react-native-webrtc: 31b6d3f1e3e2ce373aa43fd682b04367250f807d
   yoga: 55da126afc384965b96bff46652464373b330add
 
-PODFILE CHECKSUM: dcd26b1b6fae3d2ecfdfbddd696a11bfb62815cb
+PODFILE CHECKSUM: 0070d9194dafab72e7d3be68cc7c687ac6278334
 
 COCOAPODS: 1.4.0

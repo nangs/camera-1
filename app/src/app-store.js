@@ -5,6 +5,9 @@ import {AsyncStorage} from 'react-native'
 import Service from "./service";
 import {api} from "./config";
 import {Storage} from 'aws-amplify'
+import files from './helpers/files'
+import mime from 'react-native-mime-types'
+
 
 export default class AppStore {
     constructor() {
@@ -56,6 +59,32 @@ export default class AppStore {
 
 
         })
+    }
+
+    /**
+     * Update user avatar
+     * @param source
+     * @returns {Promise<any>}
+     */
+    updateUserAvatar(image) {
+
+
+        console.log(image);
+
+        const userId = _.get(this.user, 'id');
+
+        const result = {};
+
+        result.type = mime.lookup(image.filename);
+        const extension = mime.extension(result.type);
+        const imagePath = image.uri;
+        const picName = `${userId}_avatar.${extension}`;
+        const key = `${picName}`;
+        
+        return files.readFile(imagePath)
+            .then(buffer => Storage.put(key, buffer, {level: 'private', contentType: result.type}))
+            .then(fileInfo => ({key: fileInfo.key}))
+            .then(x => console.log('SAVED', x) || x);
     }
 
     /**
@@ -111,6 +140,8 @@ export default class AppStore {
         } catch (error) {
 
         }
+        this.user = _user;
+
         return _user;
     }
 
