@@ -4,8 +4,6 @@ import {EventEmitter} from 'fbemitter'
 import {AsyncStorage} from 'react-native'
 import Service from "./service";
 import {api} from "./config";
-import {Storage} from 'aws-amplify'
-import files from './helpers/files'
 import mime from 'react-native-mime-types'
 
 
@@ -80,11 +78,7 @@ export default class AppStore {
         const imagePath = image.uri;
         const picName = `${userId}_avatar.${extension}`;
         const key = `${picName}`;
-        
-        return files.readFile(imagePath)
-            .then(buffer => Storage.put(key, buffer, {level: 'private', contentType: result.type}))
-            .then(fileInfo => ({key: fileInfo.key}))
-            .then(x => console.log('SAVED', x) || x);
+
     }
 
     /**

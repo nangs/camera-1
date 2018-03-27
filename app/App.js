@@ -7,11 +7,7 @@ import Register from "./src/components/register"
 import AuthLoading from "./src/components/auth-loading"
 import Home from "./src/components/home";
 import {AppState} from 'react-native'
-import Amplify from 'aws-amplify';
-import aws_exports from './aws-exports';
 import Profile from "./src/components/profile";
-
-Amplify.configure(aws_exports);
 
 const store = new AppStore();
 
