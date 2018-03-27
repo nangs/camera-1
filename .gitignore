@@ -15,4 +15,4 @@
 /server/package-lock.json
 /web/node_modules
 /web/package-lock.json
-/server/aws.js
+/server/src/aws.js
