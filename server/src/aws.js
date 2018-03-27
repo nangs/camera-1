@@ -1,7 +1,7 @@
 export const s3Config = {
-    bucket: 'camera.tabvn.com',
-    accessKeyId: 'AKIAIGJCDTMFUC73PSRA',
-    secretAccessKey: "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",
+    bucket: '',
+    accessKeyId: '',
+    secretAccessKey: "",
     region: "us-east-1"
 };
 
