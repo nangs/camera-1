@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c2c2980f-2f30-441a-841a-8ec013841713" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/server/src/aws.js" afterPath="$PROJECT_DIR$/server/src/aws.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -39,11 +38,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="306">
               <caret line="17" column="12" lean-forward="false" selection-start-line="17" selection-start-column="12" selection-end-line="17" selection-end-column="12" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="aws.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/server/src/aws.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="54">
+              <caret line="3" column="62" lean-forward="false" selection-start-line="3" selection-start-column="62" selection-end-line="3" selection-end-column="62" />
               <folding />
             </state>
           </provider>
@@ -156,7 +165,6 @@
         <option value="$PROJECT_DIR$/server/src/config.js" />
         <option value="$PROJECT_DIR$/app/aws.js" />
         <option value="$PROJECT_DIR$/server/src/s3.js" />
-        <option value="$PROJECT_DIR$/server/src/aws.js" />
         <option value="$PROJECT_DIR$/server/src/index.js" />
         <option value="$PROJECT_DIR$/app/src/service/index.js" />
         <option value="$PROJECT_DIR$/server/src/models/user.js" />
@@ -164,6 +172,7 @@
         <option value="$PROJECT_DIR$/app/src/app-store.js" />
         <option value="$PROJECT_DIR$/app/src/components/profile.js" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/server/src/aws.js" />
       </list>
     </option>
   </component>
@@ -313,12 +322,12 @@
       <workItem from="1521767393199" duration="9966000" />
       <workItem from="1521875462608" duration="10570000" />
       <workItem from="1522050890882" duration="8934000" />
-      <workItem from="1522114724138" duration="5796000" />
+      <workItem from="1522114724138" duration="5867000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="76046000" />
+    <option name="totallyTimeSpent" value="76117000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1920" height="999" extended-state="6" />
@@ -679,14 +688,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/server/src/aws.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="21" lean-forward="false" selection-start-line="0" selection-start-column="13" selection-end-line="0" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/server/src/pubsub/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-601">
@@ -753,6 +754,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
           <caret line="17" column="12" lean-forward="false" selection-start-line="17" selection-start-column="12" selection-end-line="17" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/src/aws.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="54">
+          <caret line="3" column="62" lean-forward="false" selection-start-line="3" selection-start-column="62" selection-end-line="3" selection-end-column="62" />
           <folding />
         </state>
       </provider>
