@@ -292,5 +292,28 @@ export default class Service {
 
     }
 
+    /**
+     * S3 Upload with pre-signed Url
+     * @param signedUrl
+     * @param file
+     * @param cb
+     */
+    s3Upload(signedUrl, file, cb) {
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('PUT', signedUrl);
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    cb(null, "Upload success");
+                }
+                else {
+                    cb("An error upload file");
+                }
+            }
+        };
+        xhr.send(file);
+    }
+
 
 }

@@ -40,6 +40,7 @@ export class Client {
         this.ws = _.get(params, 'ws');
         this.id = _.get(params, 'id');
         this.userId = _.get(params, 'userId');
+        this.tokenId = _.get(params, 'tokenId');
 
 
         this.send = this.send.bind(this);

@@ -4,8 +4,10 @@ import Email from '../types/email'
 import DateTime from '../types/datetime'
 import Role from '../types/role'
 import bcrypt from 'bcrypt'
-import {SEP, strToArray} from "../types/role";
+import {SEP, strToArray} from "../types/role"
 import _ from 'lodash'
+import mime from 'mime-types'
+import {s3Config} from "../aws";
 
 export default class User extends Model {
     constructor(database) {
@@ -282,6 +284,45 @@ export default class User extends Model {
 
                 }
             },
+            createUserAvatarSignedUrl: {
+                type: GraphQLString,
+                args: {
+                    id: {
+                        name: 'userId',
+                        type: GraphQLNonNull(GraphQLString)
+                    },
+                    type: {
+                        name: 'fileType',
+                        type: GraphQLNonNull(GraphQLString)
+                    }
+                },
+                resolve: (value, args, request) => {
+
+                    const userId = _.get(args, 'id');
+                    const type = _.get(args, 'type');
+                    const ext = mime.extension(type);
+                    const s3 = request.ctx.S3;
+                    const params = {
+                        Bucket: s3Config.bucket,
+                        Key: `${userId}_avatar.${ext}`,
+                        Expires: 120,
+                        ContentType: type,
+                        ACL: 'public-read',
+                    };
+
+                    return new Promise((resolve, reject) => {
+
+                        s3.getSignedUrl('putObject', params, function (err, url) {
+                            if (err) {
+                                return reject(err);
+                            }
+                            return resolve(url);
+                        });
+                    })
+
+
+                }
+            }
 
         };
 
@@ -346,6 +387,9 @@ export default class User extends Model {
             },
             lastName: {
                 type: GraphQLString
+            },
+            avatar: {
+                type: GraphQLString,
             },
             created: {
                 type: DateTime,

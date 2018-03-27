@@ -6,8 +6,21 @@ import _ from 'lodash'
 import WebSocketServer from 'uws'
 import http from 'http'
 import express from 'express'
-import PubSub from "./pubsub";
-import Database from "./database";
+import PubSub from "./pubsub"
+import Database from "./database"
+import aws from 'aws-sdk'
+import {s3Config} from "./aws"
+
+aws.config.update({
+    accessKeyId: s3Config.accessKeyId,
+    secretAccessKey: s3Config.secretAccessKey,
+    region: s3Config.region,
+});
+
+const S3 = new aws.S3({
+    signatureVersion: 'v4',
+});
+
 
 const PORT = port;
 
@@ -33,6 +46,7 @@ app.use(cors({
 
 const ctx = {
     models: models,
+    S3: S3
 };
 
 app.use('/api', graphqlHTTP(async (request) => {

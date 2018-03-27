@@ -18,12 +18,14 @@ import {
 import {TouchableHighlight, TouchableOpacity} from 'react-native'
 import {NavigationActions} from 'react-navigation'
 import ImagePicker from 'react-native-image-picker';
+import _ from 'lodash'
 
 const UserAvatarView = styled.View `
     padding: 20px;
     display: flex;
     align-items: center;
     flex-direction: column;
+ 
 `
 
 export default class Profile extends React.Component {
@@ -33,11 +35,19 @@ export default class Profile extends React.Component {
 
         this._goBack = this._goBack.bind(this);
         this._selectPhoto = this._selectPhoto.bind(this);
+        this.getAvatarUrl = this.getAvatarUrl.bind(this)
 
         this.state = {
-            avatarSource: null
+            avatar: null
         };
 
+    }
+
+    componentDidMount() {
+
+        this.setState({
+            avatar: _.get(this.props.store.user, 'avatar', null)
+        })
     }
 
     _goBack() {
@@ -68,21 +78,21 @@ export default class Profile extends React.Component {
                 console.log('User tapped custom button: ', response.customButton);
             }
             else {
-                let source = {uri: response.uri};
-
-                // You can also display the image using data:
-                // let source = { uri: 'data:image/jpeg;base64,' + response.data };
-
-
-
                 store.updateUserAvatar(response).then((result) => {
-                    console.log("got result", result);
+
+                    this.setState({
+                        avatar: result
+                    })
                 });
-                this.setState({
-                    avatarSource: source
-                });
+
             }
         });
+    }
+
+    getAvatarUrl() {
+
+        const {avatar} = this.state;
+        return `https://s3.amazonaws.com/camera.tabvn.com/${avatar}`;
     }
 
     render() {
@@ -104,11 +114,10 @@ export default class Profile extends React.Component {
                 <Content>
                     <UserAvatarView>
                         <TouchableOpacity onPress={this._selectPhoto}>
-                            <Thumbnail large
-                                       source={this.state.avatarSource}/>
+                            <Thumbnail style={{backgroundColor: "#EEE"}} large
+                                       source={{uri: this.getAvatarUrl()}}/>
                         </TouchableOpacity>
                     </UserAvatarView>
-
                     <List>
                         <ListItem>
                             <TouchableHighlight underlayColor={"#FFF"} style={{

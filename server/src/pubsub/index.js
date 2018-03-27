@@ -26,6 +26,7 @@ export default class PubSub {
                 id: clientId,
                 ws: ws,
                 userId: null,
+                tokenId: null
             });
 
             // save this client
@@ -199,9 +200,16 @@ export default class PubSub {
     }
 
     logout(client) {
+
+        const tokenId = _.get(client, 'tokenId');
+        this.models.user.logout(tokenId).then((res) => {
+            console.log("User logged out");
+        }).catch((err) => {
+            console.log("An error logout user", err);
+        });
         client.userId = null;
         this.clients.set(client);
-        client.logout();
+
     }
 
     /**
@@ -227,6 +235,7 @@ export default class PubSub {
             }
             if (decoded) {
                 client.userId = _.get(decoded, 'userId', null);
+                client.tokenId = tokenId;
             }
             this.clients.set(client);
             return resolve(client);

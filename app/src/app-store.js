@@ -61,23 +61,49 @@ export default class AppStore {
 
     /**
      * Update user avatar
-     * @param source
+     * @param resource
      * @returns {Promise<any>}
      */
-    updateUserAvatar(image) {
+    updateUserAvatar(resource) {
 
 
-        console.log(image);
+        console.log(resource);
 
         const userId = _.get(this.user, 'id');
 
-        const result = {};
 
-        result.type = mime.lookup(image.filename);
-        const extension = mime.extension(result.type);
-        const imagePath = image.uri;
-        const picName = `${userId}_avatar.${extension}`;
-        const key = `${picName}`;
+        const fileType = mime.lookup(resource.fileName);
+        const params = {id: userId, type: fileType};
+        const ext = mime.extension(fileType);
+
+        return new Promise((resolve, reject) => {
+            this.service.mutation('createUserAvatarSignedUrl', params, null).then((url) => {
+
+
+                const file = {
+                    name: `${userId}_avatar_.${ext}`,
+                    uri: resource.uri,
+                    type: fileType
+                };
+
+                this.service.s3Upload(url, file, (err, info) => {
+                    if (err) {
+                        return reject(err);
+                    }
+
+                    let user = this.user;
+                    user.avatar = `${userId}_avatar.${ext}`;
+                    this.updateUser(user);
+                    return resolve(user.avatar);
+
+                });
+
+            }).catch((err) => {
+
+                console.log("An error", err)
+                return reject(err);
+            })
+        })
 
     }
 
@@ -168,6 +194,7 @@ export default class AppStore {
                     firstName: true,
                     lastName: true,
                     email: true,
+                    avatar: true,
                     created: true,
                 }
 
@@ -190,6 +217,21 @@ export default class AppStore {
                 return reject(err);
             })
         })
+    }
+
+    /**
+     * Update User
+     * @param user
+     * @returns {Promise<any>}
+     */
+    updateUser(user) {
+
+        const fields = {};
+        _.each(user, (v, k) => {
+            fields[k] = true;
+        });
+        this.setUser(user);
+        return this.service.mutation('update_user', this.user, fields);
     }
 
     /**
